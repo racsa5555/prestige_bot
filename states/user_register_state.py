@@ -7,9 +7,18 @@ class UserState(StatesGroup):
     full_name = State()
     id = 0
     update = False
+    language = State()
+
+class Track_code(StatesGroup):
+    track_code = State()
 
 class Calculator(StatesGroup):
     width = State()
     height = State()
     length = State()
     weight = State()
+
+class Admin(StatesGroup):
+    password = State()
+    is_admin = False
+    set_table = State()
