@@ -8,6 +8,7 @@ class UserState(StatesGroup):
     id = 0
     update = False
     language = State()
+    hi = State()
 
 class Track_code(StatesGroup):
     track_code = State()

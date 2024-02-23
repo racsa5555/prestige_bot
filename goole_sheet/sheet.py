@@ -1,6 +1,7 @@
 import gspread
 import pandas as pd
 from google.oauth2.service_account import Credentials
+from gspread_formatting import Color, CellFormat,format_cell_range
 
 scopes = [
     'https://www.googleapis.com/auth/spreadsheets',
@@ -9,16 +10,30 @@ scopes = [
 credentials = Credentials.from_service_account_file('./credentials.json', scopes=scopes)
 client = gspread.authorize(credentials)
 
+
 def update_google_sheet(track_codes, new_status):
     sheet = client.open(title = 'Users').sheet1 
     data = sheet.get_all_records()
     for row in data:
         if row['Трек Код'] in track_codes:
-            index = track_codes.index(row['Трек Код'])
+            track_code = row['Трек Код']
+            track_codes.remove(track_code)
             row['Статус'] = new_status
 
+    current_row = len(sheet.get_all_records())+2
+    last_row = current_row
+    print(track_codes)
+    for code in track_codes:
+        sheet.append_row([code])
+        last_row += 1
+    
+    last_row-=1
+    print(current_row,last_row)
+    diapazon = f'A{current_row}:A{last_row}'
+    sheet.format(diapazon,{"backgroundColor": {"red": 1.0}})
     sheet.update([list(data[0].keys())] + [list(row.values()) for row in data])
     return True
+
 
 def find_order_by_id(item_id):
     spreadsheet = client.open(title='Users')

@@ -1,12 +1,6 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton,ReplyKeyboardMarkup,KeyboardButton
 
-language_kb = InlineKeyboardBuilder(
-    markup=[
-        [InlineKeyboardButton(text = '🇷🇺',callback_data='RU'),
-        InlineKeyboardButton(text = '🇰🇬',callback_data='KG')]
-    ]
-)
 
 set_city_kb = InlineKeyboardBuilder(
     markup= [
@@ -48,7 +42,7 @@ default_kb_ru = ReplyKeyboardMarkup(
 default_kb_kg = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text = 'Көз салуу'),
+            KeyboardButton(text = 'Издөө'),
             KeyboardButton(text = 'Колдоо'),
         ],
         [

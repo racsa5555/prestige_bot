@@ -3,3 +3,4 @@ python-decouple
 gspread
 pandas
 openpyxl
+gspread_formatting
