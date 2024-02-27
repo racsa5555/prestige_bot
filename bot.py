@@ -13,9 +13,11 @@ from aiogram.types import FSInputFile
 
 from decouple import config
 
-from goole_sheet import register_client,find_order_by_id,update_google_sheet,find_order_by_track_code,update_client_by_id
+from goole_sheet import register_client,find_order_by_id,update_google_sheet,find_order_by_track_code,update_client_by_id,append_products
 from states import UserState,Calculator,Admin,Track_code
 from kbds import *
+from variables import *
+from database import load_all_states_from_db, save_state_to_db, set_user_state
 
 TOKEN = config('TOKEN')
 
@@ -24,6 +26,7 @@ bot = Bot(TOKEN)
 dp = Dispatcher()
 
 id = 2104
+
 
 @dp.message(CommandStart())
 async def start(message: types.Message):
@@ -35,13 +38,11 @@ async def start(message: types.Message):
     await message.answer("Выберите язык / Тилди тандаңыз:", reply_markup=language_kb.as_markup())
 
 
-
-
 @dp.callback_query(lambda query: query.data.startswith('lang_'))
 async def set_lang(callback:CallbackQuery,state:FSMContext):
     await state.update_data(language = callback.data[-2:])
     data = await state.get_data()
-    if  not (data.get('id') == None):
+    if not (data.get('id') == None):
         if data['language'] == 'RU':
             await callback.message.answer(text = 'Вы сменили язык на Русский',reply_markup = default_kb_ru)
         else:
@@ -50,10 +51,9 @@ async def set_lang(callback:CallbackQuery,state:FSMContext):
         await hi(callback.message,state)
 
 
-@dp.callback_query(lambda query: query.data == 'switch_language')
+@dp.callback_query(lambda query: query.data.startswith('switch_language_'))
 async def set_l(callback:CallbackQuery,state:FSMContext):
-    await start(callback.message)
-
+    await set_lang(callback,state)
 
 
 
@@ -62,7 +62,7 @@ async def set_bish(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     await state.update_data(update = True)
     if data['language'] == 'RU':
-        await callback.message.answer(text = 'С какого вы города',reply_markup=set_city_kb.as_markup())
+        await callback.message.answer(text = 'С какого Вы города?',reply_markup=set_city_kb.as_markup())
     else:
         await callback.message.answer(text = 'Кайсыл шаардан болосуз?',reply_markup=set_city_kb.as_markup())
 
@@ -86,15 +86,15 @@ async def hi(message: Message, state: FSMContext) -> None:
 
 @dp.callback_query(lambda query: query.data.startswith('city_set'))
 async def set_bish(callback:CallbackQuery,state:FSMContext):
-    if callback.data == 'city_set_ik':
-        await state.update_data(city = 'IK')
+    if callback.data == 'city_set_kk':
+        await state.update_data(city = 'KK')
     else:
         await state.update_data(city = 'BISH')
     data = await state.get_data()
     if data['language'] == 'RU':
-        await callback.message.answer(text = 'Как вас зовут')
+        await callback.message.answer(text = 'Как Вас зовут?')
     else:
-        await callback.message.answer(text = 'Атыңыз ким болот ?')
+        await callback.message.answer(text = 'Сиздин атыңыз ким?')
     await state.set_state(UserState.name)
 
 @dp.message(UserState.name)
@@ -103,9 +103,9 @@ async def set_name(message:Message,state:FSMContext):
     await state.set_state(UserState.full_name)
     data = await state.get_data()
     if data['language'] == 'RU':
-        await message.answer(text = 'Как ваша фамилия')
+        await message.answer(text = 'Как Ваша фамилия?')
     else:
-        await message.answer(text = 'Фамилияңыз ким болот?')
+        await message.answer(text = 'Сиздин фамилияңыз кандай?')
 
 
 @dp.message(UserState.full_name)
@@ -114,16 +114,13 @@ async def set_full_name(message:Message,state:FSMContext):
     await state.set_state(UserState.phone_number)
     data = await state.get_data()
     if data['language'] == 'RU':
-        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 550392062')
+        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 996ХХХХХХХХХ')
     else:
-        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 550392062')
-
-    
-
+        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 996ХХХХХХХХХ')
 
 @dp.message(UserState.phone_number)
-async def set_full_name(message:Message,state:FSMContext):
-    if message.text.isdigit() and len(message.text) == 9:
+async def set_phone_number(message:Message,state:FSMContext):
+    if message.text.isdigit():
         await state.update_data(phone_number = message.text)
         data = await state.get_data()
         update =  data.get('update')
@@ -137,12 +134,12 @@ async def set_full_name(message:Message,state:FSMContext):
                 default_kb = default_kb_ru
                 profile_kb = profile_kb_ru
                 await message.answer(text = '✅ Успешное обновление профиля !',reply_markup=default_kb)
-                await message.answer(text = f'📃Ваш профиль📃\n🪪 Персональный id: {data["id"]}\n👤 Имя: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Геопозиция: {data["city"]}',reply_markup=profile_kb.as_markup())
+                await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             else:
                 default_kb = default_kb_kg
                 profile_kb = profile_kb_kg
                 await message.answer(text = '✅ Ийгиликтүү профильди өзгөртүп алдыныз !',reply_markup=default_kb)
-                await message.answer(text = f'📃Сиздин профилиниз📃\n🪪 Жеке id: {data["id"]}\n👤 Аты: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Турган жери: {data["city"]}',reply_markup=profile_kb.as_markup())
+                await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             await state.set_state()
         else:
             global id
@@ -152,13 +149,15 @@ async def set_full_name(message:Message,state:FSMContext):
             if data['language'] == 'RU':
                 default_kb = default_kb_ru
                 profile_kb = profile_kb_ru
+                await save_state_to_db(message.from_user.id,data)
                 await message.answer(text = '✅ Успешная регистрация !',reply_markup=default_kb)
-                await message.answer(text = f'📃Ваш профиль📃\n🪪 Персональный id: {data["id"]}\n👤 Имя: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Геопозиция: {data["city"]}',reply_markup=profile_kb.as_markup())
+                await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             else:
                 default_kb = default_kb_kg
                 profile_kb = profile_kb_kg
+                await save_state_to_db(message.from_user.id,data)
                 await message.answer(text = '✅ Ийгиликтүү каттоо !',reply_markup=default_kb)
-                await message.answer(text = f'📃Сиздин профилиниз📃\n🪪 Жеке id: {data["id"]}\n👤 Аты: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Турган жери: {data["city"]}',reply_markup=profile_kb.as_markup())
+                await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             register_client(data)
             await state.set_state()
     else:
@@ -168,32 +167,34 @@ async def set_full_name(message:Message,state:FSMContext):
         else:
             await message.answer('❗️ Туура эмес формат ❗️\nКайра жазып көрүнүз')
 
-@dp.message(F.text == 'Профиль')
+@dp.message(F.text[1:].in_({'Профиль','Кароо'}))
 async def get_profile(message:Message,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
+        res = send_profile(data)
         profile_kb = profile_kb_ru
-        await message.answer(text = f'📃Ваш профиль📃\n🪪 Персональный id: {data["id"]}\n👤 Имя: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Геопозиция: {data["city"]}',reply_markup=profile_kb.as_markup())
+        await message.answer(text = res,reply_markup=profile_kb.as_markup())
     else:
         profile_kb = profile_kb_kg
-        await message.answer(text = f'📃Сиздин профилиниз📃\n🪪 Жеке id: {data["id"]}\n👤 Аты: {data["name"]}\n👤 Фамилия: {data["full_name"]}\n📞 Номер: {data["phone_number"]}\n🌍 Турган жери: {data["city"]}',reply_markup=profile_kb.as_markup())
+        res = send_profile(data)
+        await message.answer(text = res,reply_markup=profile_kb.as_markup())
 
-@dp.message(F.text.in_({'Адреса','Даректер'}))
-async def get_profile(message:Message,state:FSMContext):
+@dp.message(F.text[1:].in_({'Адреса','Дарек'}))
+async def get_address(message:Message,state:FSMContext):
     data = await state.get_data()
-    if data['language'] == 'RU':
-        await message.answer(text = f'👤 蓝天{data["city"]}-{data["id"]}\n📞  15547009391\nПолный адрес: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{data["id"]} {data["phone_number"]}')
-    else:
-        await message.answer(text = f'👤 蓝天{data["city"]}-{data["id"]}\n📞  15547009391\nТолук адрес: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{data["id"]} {data["phone_number"]}')
+    lang = data.get('language')
+    res = send_adress(data.get('id'),data.get('phone_number'),lang)
+    await message.answer(text = res)
 
-@dp.message(F.text == 'Калькулятор')
-async def set_length(message:Message,state:FSMContext):
+
+@dp.message(F.text[1:].in_({'Калькулятор','Эсептөөчү'}))
+async def set_start(message:Message,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
         cancel_calc = cancel_calc_ru
         await message.answer(text = 'Введите длину (см)',reply_markup=cancel_calc)
     else:
-        cancel_calc = cancel_calc_ru
+        cancel_calc = cancel_calc_kg
         await message.answer(text = 'Узундугун жазыныз (см)',reply_markup=cancel_calc)
     await state.set_state(Calculator.length)
 
@@ -208,6 +209,7 @@ async def set_length(message:Message,state:FSMContext):
             await message.answer(text = 'Введите ширину (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.width)
         elif message.text == 'Отмена':
+            default_kb = default_kb_ru
             await message.answer(text = 'Вы отменили последнее действие',reply_markup=default_kb)
             await state.set_state()
         else:
@@ -229,9 +231,9 @@ async def set_length(message:Message,state:FSMContext):
 async def set_width(message:Message,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
+        default_kb = default_kb_ru
         if message.text.isdigit():
             cancel_calc = cancel_calc_ru
-            default_kb = default_kb_ru
             await state.update_data(width = int(message.text))
             await message.answer(text = 'Введите высоту (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.height)
@@ -241,9 +243,9 @@ async def set_width(message:Message,state:FSMContext):
         else:
             await message.answer('❗️ Неверный формат ввода ❗️\nПопробуйте снова')
     else:
+        default_kb = default_kb_kg
         if message.text.isdigit():
             cancel_calc = cancel_calc_kg
-            default_kb = default_kb_kg
             await state.update_data(width = int(message.text))
             await message.answer(text = 'Узундугун жазыныз (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.height)
@@ -257,9 +259,9 @@ async def set_width(message:Message,state:FSMContext):
 async def set_height(message:Message,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
+        default_kb = default_kb_ru
         if message.text.isdigit():
             cancel_calc = cancel_calc_ru
-            default_kb = default_kb_ru
             await state.update_data(height = int(message.text))
             await message.answer(text = 'Введите вес (кг)',reply_markup=cancel_calc)
             await state.set_state(Calculator.weight)
@@ -269,9 +271,9 @@ async def set_height(message:Message,state:FSMContext):
         else:
             await message.answer('❗️ Неверный формат ввода ❗️\nПопробуйте снова')
     else:
+        default_kb = default_kb_kg
         if message.text.isdigit():
             cancel_calc = cancel_calc_kg
-            default_kb = default_kb_kg
             await state.update_data(height = int(message.text))
             await message.answer(text = 'Салмагын жазыныз (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.weight)
@@ -281,9 +283,10 @@ async def set_height(message:Message,state:FSMContext):
         else:
             await message.answer('❗️ Туура эмес формат ❗️\nКайра жазып көрүнүз')
 
-@dp.message(F.text.in_({'Артка','Отмена'}))
+@dp.message(F.text[1:].in_({'Артка','Отмена'}))
 async def cancel(message:Message,state:FSMContext):
     data = await state.get_data()
+    default_kb = None
     if data['language'] == 'RU':
         default_kb = default_kb_ru
         await message.answer(text = 'Вы отменили последнее действие',reply_markup=default_kb)
@@ -298,15 +301,15 @@ async def set_width(message:Message,state:FSMContext):
     if message.text.isdigit():
         await state.update_data(weight = int(message.text))
         data = await state.get_data()
-        if data.get('city') == 'IK':
-            price_weight = 4.4
-            price_volume = 370
+        if data.get('city') == 'KK':
+            price_weight = PRICE_WEIGHT_KK
+            price_volume = PRICE_VOLUME_KK
         elif data.get('city') == 'BISH':
-            price_weight = 3.8
-            price_volume = 330
+            price_weight = PRICE_WEIGHT_BISH
+            price_volume = PRICE_VOLUME_BISH
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
         weigth_price = data['weight'] * price_weight
-        max_price = max(volume_price,weigth_price)
+        max_price = round(max(volume_price,weigth_price),1)
         data = await state.get_data()
         if data['language'] == 'RU':
             default_kb = default_kb_ru
@@ -323,7 +326,7 @@ async def set_width(message:Message,state:FSMContext):
 
 
 
-@dp.message(F.text.in_({'Издөө','Отслеживание'}))
+@dp.message(F.text[1:].in_({'Издөө','Отслеживание'}))
 async def tracking(message:Message,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
@@ -331,14 +334,15 @@ async def tracking(message:Message,state:FSMContext):
         await message.answer(text = 'Выберите способ отслеживания',reply_markup=tracking_kb.as_markup())
     else:
         tracking_kb = tracking_kb_kg
-        await message.answer(text = 'Издөө ыкмасын тандаңыз',reply_markup=tracking_kb.as_markup())
+        await message.answer(text = 'Издөө режим тандаңыз',reply_markup=tracking_kb.as_markup())
 
 
 @dp.callback_query(lambda query: query.data == 'client_id')
 async def tracking_by_client_id(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     client_id = data.get('id')
-    res = find_order_by_id(str(client_id))
+    lang = data.get('language')
+    res = find_order_by_id(str(client_id),lang)
     await callback.message.answer(text = res)
 
 
@@ -346,17 +350,29 @@ async def tracking_by_client_id(callback:CallbackQuery,state:FSMContext):
 async def tracking_by_client_id(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     if data['language'] == 'RU':
-        await callback.message.answer(text = 'Введите трек-код товара')
+        await callback.message.answer(text = 'Введите трек-код товара',reply_markup=cancel_calc_ru)
     else:
-        await callback.message.answer(text ='Товардын трек кодун жазыңыз')
+        await callback.message.answer(text ='Товардын трек кодун жазыңыз',reply_markup = cancel_calc_kg)
     await state.set_state(Track_code.track_code)
 
 
 @dp.message(Track_code.track_code)
 async def track_code(message:Message,state:FSMContext):
     track_code = message.text
-    res = find_order_by_track_code(track_code)
-    await message.answer(text = res)
+    if message.text in {'Отмена','Артка'}:
+        data = await state.get_data()
+        lang = data.get('language')
+        res = cancel_sender(lang)
+        if lang == 'RU':
+            default_kb = default_kb_ru
+        else:
+            default_kb = default_kb_kg
+        await message.answer(text = res,reply_markup=default_kb)
+        await state.set_state()
+    else:
+        data = await state.get_data()
+        res = find_order_by_track_code(track_code,data.get('language'))
+        await message.answer(text = res)
 
 
 @dp.message(Command(commands=['admin']))
@@ -366,7 +382,7 @@ async def admin_mode(message:Message,state:FSMContext):
 
 @dp.message(Admin.password)
 async def get_password(message:Message,state:FSMContext):
-    if message.text == '6474184256:AAFqSpjtg32avQ5wmV26QwdOWwaPpKMn_qo':
+    if message.text == ADMIN_PASSWORD:
         await message.answer(text = 'Вы успешно вошли в режим админа\n Отправьте excel таблицу с трек кодами и с текстом статуса')
         await state.update_data(is_admin = True)
         await state.set_state()
@@ -381,27 +397,58 @@ async def handle_admin_documents(message: types.Message, state: FSMContext):
         file_info = await bot.get_file(message.document.file_id)
         file_path = file_info.file_path
         file = await bot.download_file(file_path)
-        df = pd.read_excel(file)
-        track_codes = df['Трек Код'].to_list()
+        df = pd.read_excel(file,header = None)
+        track_codes = df.iloc[:,0].to_list()
+        data = df.iloc[:, :2]
         new_status = message.caption
-        update_google_sheet(track_codes,new_status)
-        await message.answer('Все готово,проверьте')
+        if new_status == 'На Складе':
+            append_products(data)
+            await message.answer('Все готово,проверьте')
+        else:
+            update_google_sheet(track_codes,new_status)
+            await message.answer('Все готово,проверьте')
     else:
         await message.answer('Неверный формат ввода')
 
 
-@dp.message(F.text.in_({'Поддержка','Колдоо'}))
-async def help(message:Message):
-    await message.answer(text = 'Ссылка на поддержку')
+@dp.message(F.text[2:].in_({'Поддержка','Колдоо'}))
+async def help(message:Message,state:FSMContext):
+    data = await state.get_data()
+    if data['language'] == 'RU':
+        await message.answer(text = f'🛠️Контакт для поддержки📩\n{LINK_WHATSAPP}')
+    else:
+        await message.answer(text = f'🛠️Колдоо байланыш📩\n{LINK_WHATSAPP}')
 
 
-@dp.message(F.text.in_({'Инструкция','Көрсөтмөлөр'}))
-async def send_video(message:Message):
-    video_path = 'video/test.mp4'
-    vid = FSInputFile(video_path)
-    await bot.send_video(chat_id=message.chat.id, video=vid)
+@dp.message(F.text[1:].in_({'Инструкция','Нускама'}))
+async def send_video(message:Message,state:FSMContext):
+    data = await state.get_data()
+    if data.get('language') == 'RU':
+        await message.answer(text = 'Выберите маркетплейс',reply_markup=instruction_kb.as_markup())
+    else:
+        await message.answer(text = 'Базар тандаңыз',reply_markup=instruction_kb.as_markup())
+
+
+@dp.callback_query(lambda query: query.data.startswith('choose_'))
+async def instruction(callback:CallbackQuery):
+    data = callback.data[7:]
+    if data == 'pin':
+        await callback.message.answer(text = PINDUODUO)
+    elif data == 'tao':
+        await callback.message.answer(text = TAOBAO)
+    elif data == '1688':
+        await callback.message.answer(text = ONE_AND_SIX)
+    elif data == 'poi':
+        await callback.message.answer(text = POIZON)
+
+# async def on_startup():
+#     states = await load_all_states_from_db()
+#     for user_id, state in states.items():
 
     
+
+# dp.startup.register(on_startup)
+
 
 
 async def main():

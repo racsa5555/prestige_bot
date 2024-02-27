@@ -4,3 +4,5 @@ gspread
 pandas
 openpyxl
 gspread_formatting
+sqlalchemy
+psycopg2-binary
