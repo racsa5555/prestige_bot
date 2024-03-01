@@ -1,6 +1,6 @@
-PRICE_WEIGHT_KK = 4.4  # для цены по весу в Иссык-Куле
+PRICE_WEIGHT_KK = 4.4  # для цены по весу в Караколе
 PRICE_WEIGHT_BISH = 3.8 # для цены по весу в Бишкеке
-PRICE_VOLUME_KK = 370 # для цены по обьему в Иссык-Куле
+PRICE_VOLUME_KK = 370 # для цены по обьему в Караколе
 PRICE_VOLUME_BISH = 330 # для цены по обьему в Бишкеке
 
 ADMIN_PASSWORD = '1'

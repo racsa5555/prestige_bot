@@ -7,17 +7,20 @@ from aiogram import types
 from aiogram.types import Message,CallbackQuery
 from aiogram.filters import CommandStart,Command
 from aiogram import F
-from aiogram.fsm.context import FSMContext
-from aiogram.methods.send_video import SendVideo
-from aiogram.types import FSInputFile
+
 
 from decouple import config
+
+from aiogram.fsm.context import FSMContext
 
 from goole_sheet import register_client,find_order_by_id,update_google_sheet,find_order_by_track_code,update_client_by_id,append_products
 from states import UserState,Calculator,Admin,Track_code
 from kbds import *
 from variables import *
-from database import load_all_states_from_db, save_state_to_db, set_user_state
+
+LIST_USERS = set()
+
+
 
 TOKEN = config('TOKEN')
 
@@ -26,7 +29,6 @@ bot = Bot(TOKEN)
 dp = Dispatcher()
 
 id = 2104
-
 
 @dp.message(CommandStart())
 async def start(message: types.Message):
@@ -40,14 +42,14 @@ async def start(message: types.Message):
 
 @dp.callback_query(lambda query: query.data.startswith('lang_'))
 async def set_lang(callback:CallbackQuery,state:FSMContext):
-    await state.update_data(language = callback.data[-2:])
+    await state.update_data(language=callback.data[-2:])
     data = await state.get_data()
     if not (data.get('id') == None):
         if data['language'] == 'RU':
             await callback.message.answer(text = 'Вы сменили язык на Русский',reply_markup = default_kb_ru)
         else:
             await callback.message.answer(text = 'Сиз тилди Кыргызчага алмаштырдыңыз',reply_markup = default_kb_kg)
-    else: 
+    else:
         await hi(callback.message,state)
 
 
@@ -65,6 +67,7 @@ async def set_bish(callback:CallbackQuery,state:FSMContext):
         await callback.message.answer(text = 'С какого Вы города?',reply_markup=set_city_kb.as_markup())
     else:
         await callback.message.answer(text = 'Кайсыл шаардан болосуз?',reply_markup=set_city_kb.as_markup())
+
 
 @dp.message(UserState.hi)
 async def hi(message: Message, state: FSMContext) -> None:
@@ -149,13 +152,13 @@ async def set_phone_number(message:Message,state:FSMContext):
             if data['language'] == 'RU':
                 default_kb = default_kb_ru
                 profile_kb = profile_kb_ru
-                await save_state_to_db(message.from_user.id,data)
+                global LIST_USERS
+                LIST_USERS.add(message.from_user.id)
                 await message.answer(text = '✅ Успешная регистрация !',reply_markup=default_kb)
                 await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             else:
                 default_kb = default_kb_kg
                 profile_kb = profile_kb_kg
-                await save_state_to_db(message.from_user.id,data)
                 await message.answer(text = '✅ Ийгиликтүү каттоо !',reply_markup=default_kb)
                 await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             register_client(data)
@@ -369,7 +372,7 @@ async def track_code(message:Message,state:FSMContext):
             default_kb = default_kb_kg
         await message.answer(text = res,reply_markup=default_kb)
         await state.set_state()
-    else:
+    else: 
         data = await state.get_data()
         res = find_order_by_track_code(track_code,data.get('language'))
         await message.answer(text = res)
@@ -383,11 +386,106 @@ async def admin_mode(message:Message,state:FSMContext):
 @dp.message(Admin.password)
 async def get_password(message:Message,state:FSMContext):
     if message.text == ADMIN_PASSWORD:
-        await message.answer(text = 'Вы успешно вошли в режим админа\n Отправьте excel таблицу с трек кодами и с текстом статуса')
+        await message.answer(text = 'Вы успешно вошли в режим админа\n Отправьте excel таблицу с трек кодами и с текстом статуса',reply_markup=set_variables_kbds.as_markup())
         await state.update_data(is_admin = True)
         await state.set_state()
     else:
         await message.answer(text = 'Неверный пароль,попробуйте еще раз')
+
+
+@dp.callback_query(lambda query: query.data.startswith('set_'))
+async def set_variables(callback:CallbackQuery,state:FSMContext):
+    if callback.data == 'set_marketplace':
+        await callback.message.answer(text = 'Выберите у какого маркетплейса хотите поменять ссылку/текст',reply_markup=set_marketplace.as_markup())
+    if callback.data == 'set_prices':
+        await callback.message.answer(text = 'Выберите у какой переменной хотите поменять значение',reply_markup=set_price.as_markup())
+
+
+@dp.callback_query(lambda query: query.data.startswith('r_'))
+async def set_market(callback:CallbackQuery,state:FSMContext):
+    await state.update_data(data = {'data':callback.data[2:]})
+    await callback.message.answer(text = f'Введите новую цену для маркетплейса {callback.data[2:]}')
+    await state.set_state(Admin.set_price)
+
+
+@dp.callback_query(lambda query: query.data == 'reset_password')
+async def reset_password(callback:CallbackQuery,state:FSMContext):
+    await callback.message.answer(text = 'Введите новый пароль')
+    await state.update_data(data = {'data':'resetpassword'})
+    await state.set_state(Admin.set_price)
+
+
+
+@dp.callback_query(lambda query: query.data == 're_whatsapp')
+async def re_whatsapp(callback:CallbackQuery,state:FSMContext):
+    await callback.message.answer(text = 'Введите новую ссылку для Whatsapp')
+    await state.update_data(data = {'data':'whatsapp'})
+    await state.set_state(Admin.set_price)
+
+
+@dp.callback_query(lambda query: query.data.startswith('p_'))
+async def set_price_v(callback:CallbackQuery,state:FSMContext):
+    await state.update_data(data = {'data':callback.data[8:]})
+    await callback.message.answer(text = 'Введите новое значение')
+    await state.set_state(Admin.set_price)
+
+
+@dp.callback_query(lambda query: query.data == 'send_broadcast')
+async def send_b(callback:CallbackQuery,state:FSMContext):
+    await callback.message.answer(text = 'Введите новость')
+    await state.set_state(Admin.news)
+
+
+@dp.message(Admin.news)
+async def send_new(message:Message,state:FSMContext):
+    text = message.text
+    await send_news(text)
+    await message.answer(text = 'Новость успешно разослана')
+    await state.set_state()
+
+
+@dp.message(Admin.set_price)
+async def set_price_v2(message:Message,state:FSMContext):
+    data = await state.get_data()
+    new_value = message.text
+    global PRICE_VOLUME_BISH
+    global PRICE_VOLUME_KK
+    global PRICE_WEIGHT_BISH
+    global PRICE_WEIGHT_KK
+    global TAOBAO
+    global ONE_AND_SIX
+    global PINDUODUO
+    global POIZON
+    global LINK_WHATSAPP
+    global ADMIN_PASSWORD
+    if '_' in data['data']:
+        if data['data'] == 'volume_bish':
+            PRICE_VOLUME_BISH = float(new_value)
+        elif data['data'] == 'volume_kk':
+            PRICE_VOLUME_KK = float(new_value)
+        elif data['data'] == 'weight_bish':
+            PRICE_WEIGHT_BISH = float(new_value)
+        elif data['data'] == 'weight_kk':
+            PRICE_WEIGHT_KK == float(new_value)
+        await message.answer(text = 'Вы успешно сменили цену')
+    elif data['data'] == 'whatsapp':
+        LINK_WHATSAPP = new_value
+        await message.answer(text = 'Вы успешно сменили ссылку на whatsapp')
+    elif data['data'] == 'resetpassword':
+        ADMIN_PASSWORD = new_value
+        await message.answer(text = 'Вы сменили пароль')
+    else:
+        if data['data'] == 'taobao':
+            TAOBAO = new_value
+        elif data['data'] == 'pinduoduo':
+            PINDUODUO = new_value
+        elif data['data'] == 'poizon':
+            POIZON = new_value
+        elif data['data'] == '1688':
+            ONE_AND_SIX = new_value        
+        await message.answer(text = 'Вы успешно сменили ссылку')
+    await state.set_state()
+
 
 
 @dp.message(F.document)
@@ -423,7 +521,7 @@ async def help(message:Message,state:FSMContext):
 @dp.message(F.text[1:].in_({'Инструкция','Нускама'}))
 async def send_video(message:Message,state:FSMContext):
     data = await state.get_data()
-    if data.get('language') == 'RU':
+    if data.get('language') == 'RU': 
         await message.answer(text = 'Выберите маркетплейс',reply_markup=instruction_kb.as_markup())
     else:
         await message.answer(text = 'Базар тандаңыз',reply_markup=instruction_kb.as_markup())
@@ -441,13 +539,11 @@ async def instruction(callback:CallbackQuery):
     elif data == 'poi':
         await callback.message.answer(text = POIZON)
 
-# async def on_startup():
-#     states = await load_all_states_from_db()
-#     for user_id, state in states.items():
+async def send_news(message):
+    global LIST_USERS
+    for user_id in LIST_USERS:
+        await bot.send_message(user_id,message)
 
-    
-
-# dp.startup.register(on_startup)
 
 
 

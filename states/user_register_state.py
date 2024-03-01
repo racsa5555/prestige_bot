@@ -1,5 +1,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
+
 class UserState(StatesGroup):
     phone_number = State()
     name = State()
@@ -23,3 +24,6 @@ class Admin(StatesGroup):
     password = State()
     is_admin = False
     set_table = State()
+    set_price = State()
+    data = State()
+    news = State()

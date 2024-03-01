@@ -109,3 +109,31 @@ instruction_kb = InlineKeyboardBuilder(
     ]
 )
 
+set_variables_kbds = InlineKeyboardBuilder(
+    markup = [
+        [InlineKeyboardButton(text = 'Поменять цены',callback_data='set_prices')],
+        [InlineKeyboardButton(text = 'Поменять ссылку для поддержки',callback_data = 're_whatsapp')],
+        [InlineKeyboardButton(text = 'Поменять маркетплейсы',callback_data='set_marketplace')],
+        [InlineKeyboardButton(text = 'Рассылка новостей',callback_data = 'send_broadcast')],
+        [InlineKeyboardButton(text = 'Сменить пароль админа',callback_data = 'reset_password')]
+
+    ]
+)
+
+set_marketplace = InlineKeyboardBuilder(
+    markup=[
+        [InlineKeyboardButton(text = 'Pinduoduo',callback_data = 'r_pinduoduo')],
+        [InlineKeyboardButton(text = 'TAOBAO',callback_data = 'r_taobao')],
+        [InlineKeyboardButton(text = '1688',callback_data = 'r_1688')],
+        [InlineKeyboardButton(text = 'POIZON',callback_data = 'r_poizon')]
+    ]
+)
+
+set_price = InlineKeyboardBuilder(
+    markup=[
+        [InlineKeyboardButton(text = 'Цена по весу в Караколе',callback_data = 'p_price_weight_kk')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Караколе',callback_data = 'p_price_volume_kk')],
+        [InlineKeyboardButton(text = 'Цена по весу в Бишкеке',callback_data = 'p_price_weight_bish')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Бишкеке',callback_data = 'p_price_volume_bish')],
+    ]
+)
