@@ -184,9 +184,11 @@ async def get_profile(message:Message,state:FSMContext):
 
 @dp.message(F.text[1:].in_({'Адреса','Дарек'}))
 async def get_address(message:Message,state:FSMContext):
+    global ADRESS_BISH
+    global ADRESS_KK
     data = await state.get_data()
     lang = data.get('language')
-    res = send_adress(data.get('id'),data.get('phone_number'),lang)
+    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_KK,ADRESS_BISH))
     await message.answer(text = res)
 
 
@@ -404,9 +406,15 @@ async def set_variables(callback:CallbackQuery,state:FSMContext):
 @dp.callback_query(lambda query: query.data.startswith('r_'))
 async def set_market(callback:CallbackQuery,state:FSMContext):
     await state.update_data(data = {'data':callback.data[2:]})
-    await callback.message.answer(text = f'Введите новую цену для маркетплейса {callback.data[2:]}')
+    await callback.message.answer(text = f'Введите новую ссылку для маркетплейса {callback.data[2:]}')
     await state.set_state(Admin.set_price)
 
+
+@dp.callback_query(lambda query: query.data.startswith('reset_city_'))
+async def reset_city(callback:CallbackQuery,state:FSMContext):
+    await callback.message.answer(text = 'Введите новый адресс в следующем формате:\n👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})')
+    await state.update_data(data = {'data':callback.data[11:]})
+    await state.set_state(Admin.set_price)
 
 @dp.callback_query(lambda query: query.data == 'reset_password')
 async def reset_password(callback:CallbackQuery,state:FSMContext):
@@ -458,6 +466,8 @@ async def set_price_v2(message:Message,state:FSMContext):
     global POIZON
     global LINK_WHATSAPP
     global ADMIN_PASSWORD
+    global ADRESS_KK
+    global ADRESS_BISH
     if '_' in data['data']:
         if data['data'] == 'volume_bish':
             PRICE_VOLUME_BISH = float(new_value)
@@ -474,6 +484,12 @@ async def set_price_v2(message:Message,state:FSMContext):
     elif data['data'] == 'resetpassword':
         ADMIN_PASSWORD = new_value
         await message.answer(text = 'Вы сменили пароль')
+    elif data['data'] == 'kk':  
+        ADRESS_KK = str(new_value)
+        await message.answer(text = 'Вы сменили адрес Каракол')
+    elif data['data'] == 'bish':
+        ADRESS_BISH = str(new_value)
+        await message.answer(text = 'Вы сменили адрес Бишкека')
     else:
         if data['data'] == 'taobao':
             TAOBAO = new_value

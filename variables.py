@@ -7,16 +7,27 @@ ADMIN_PASSWORD = '1'
 
 LINK_WHATSAPP = 'https://wa.me/+996507851004'
 
+
+ADRESS_KK = '👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})'
+ADRESS_BISH = '👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})'
+
+
 PINDUODUO = 'link1'
 TAOBAO = 'link2'
 ONE_AND_SIX = 'link3' #1688
 POIZON = 'link4'
 
-def send_adress(id,phone_number,lang):
+def send_adress(id,phone_number,lang,city,ADRESS_KK,ADRESS_BISH):
     if lang == 'RU':
-        return f'👤 蓝天LT01-{id}\n📞  15547009391\nПолный адрес: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{id} ({phone_number})'
+        if city == 'KK':
+            return ADRESS_KK.format(id,'Полный адрес',id,phone_number)
+        elif city == 'BISH':
+            return ADRESS_BISH.format(id,'Полный адрес',id,phone_number)
     else:
-        return f'👤 蓝天LT01-{id}\n📞  15547009391\nТолук адрес: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{id} ({phone_number})'
+        if city == 'KK':
+            return ADRESS_KK.format(id,'Толук адрес',id,phone_number)
+        elif city == 'BISH':
+            return ADRESS_BISH.format(id,'Толук адрес',id,phone_number)
     
 
 def send_profile(kwargs):
