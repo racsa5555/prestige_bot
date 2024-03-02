@@ -22,18 +22,24 @@ def append_products(df):
 def update_google_sheet(track_codes, new_status):
     sheet = client.open(title = 'Users').sheet1 
     data = sheet.get_all_records()
+    new_codes = []
+    # for row in data:
+    #     if row['Трек Код'] in track_codes:
+    #         row['Статус'] = new_status
     for row in data:
         if row['Трек Код'] in track_codes:
-            track_codes.remove(row['Трек Код'])
             row['Статус'] = new_status
+
+    add_track_codes = {code for code in track_codes if code not in {row['Трек Код'] for row in data}}
     current_row = len(sheet.get_all_records())+2
     last_row = current_row-1
-    if track_codes:
-        for code in track_codes:
+    if add_track_codes:
+        for code in add_track_codes:
             sheet.append_row([code])
             last_row += 1
-    diapazon = f'A{current_row}:A{last_row}'
-    sheet.format(diapazon,{"backgroundColor": {"red": 1.0}})
+    if add_track_codes:
+        diapazon = f'A{current_row}:A{last_row}'
+        sheet.format(diapazon,{"backgroundColor": {"red": 1.0}})
     sheet.update([list(data[0].keys())] + [list(row.values()) for row in data])
     return True
 

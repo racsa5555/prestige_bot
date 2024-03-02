@@ -200,7 +200,7 @@ async def set_start(message:Message,state:FSMContext):
         await message.answer(text = 'Введите длину (см)',reply_markup=cancel_calc)
     else:
         cancel_calc = cancel_calc_kg
-        await message.answer(text = 'Узундугун жазыныз (см)',reply_markup=cancel_calc)
+        await message.answer(text = 'Узундугун жазыныз (см)',reply_markup=cancel_calc) 
     await state.set_state(Calculator.length)
 
 @dp.message(Calculator.length)
@@ -307,14 +307,18 @@ async def set_width(message:Message,state:FSMContext):
         await state.update_data(weight = int(message.text))
         data = await state.get_data()
         if data.get('city') == 'KK':
+            global PRICE_VOLUME_KK
+            global PRICE_WEIGHT_KK
             price_weight = PRICE_WEIGHT_KK
             price_volume = PRICE_VOLUME_KK
         elif data.get('city') == 'BISH':
+            global PRICE_VOLUME_BISH
+            global PRICE_WEIGHT_BISH
             price_weight = PRICE_WEIGHT_BISH
             price_volume = PRICE_VOLUME_BISH
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
-        weigth_price = data['weight'] * price_weight
-        max_price = round(max(volume_price,weigth_price),1)
+        weight_price = data['weight'] * price_weight
+        max_price = round(max(volume_price,weight_price),1)
         data = await state.get_data()
         if data['language'] == 'RU':
             default_kb = default_kb_ru
@@ -476,7 +480,7 @@ async def set_price_v2(message:Message,state:FSMContext):
         elif data['data'] == 'weight_bish':
             PRICE_WEIGHT_BISH = float(new_value)
         elif data['data'] == 'weight_kk':
-            PRICE_WEIGHT_KK == float(new_value)
+            PRICE_WEIGHT_KK = float(new_value)
         await message.answer(text = 'Вы успешно сменили цену')
     elif data['data'] == 'whatsapp':
         LINK_WHATSAPP = new_value
@@ -507,20 +511,24 @@ async def set_price_v2(message:Message,state:FSMContext):
 @dp.message(F.document)
 async def handle_admin_documents(message: types.Message, state: FSMContext):
     data = await state.get_data()
+    statuses = {'На Складе','В Пути','В КР'}
     if data.get("is_admin") == True:
-        file_info = await bot.get_file(message.document.file_id)
-        file_path = file_info.file_path
-        file = await bot.download_file(file_path)
-        df = pd.read_excel(file,header = None)
-        track_codes = df.iloc[:,0].to_list()
-        data = df.iloc[:, :2]
-        new_status = message.caption
-        if new_status == 'На Складе':
-            append_products(data)
-            await message.answer('Все готово,проверьте')
+        if message.caption not in statuses:
+            await message.answer(text = f'Введите к прикрепленному файлу один из статусов:{statuses}')
         else:
-            update_google_sheet(track_codes,new_status)
-            await message.answer('Все готово,проверьте')
+            file_info = await bot.get_file(message.document.file_id)
+            file_path = file_info.file_path
+            file = await bot.download_file(file_path)
+            df = pd.read_excel(file,header = None)
+            track_codes = df.iloc[:,0].to_list()
+            data = df.iloc[:, :2]
+            new_status = message.caption
+            if new_status == 'На Складе':
+                append_products(data)
+                await message.answer('Все готово,проверьте')
+            else:
+                update_google_sheet(set(track_codes),new_status)
+                await message.answer('Все готово,проверьте')
     else:
         await message.answer('Неверный формат ввода')
 
