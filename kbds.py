@@ -53,7 +53,7 @@ default_kb_kg = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text = '🔎Издөө'),
-            KeyboardButton(text = '👤Кароо'),
+            KeyboardButton(text = '👤Профиль'),
             
         ],
         [
@@ -96,7 +96,7 @@ tracking_kb_ru = InlineKeyboardBuilder(
 tracking_kb_kg = InlineKeyboardBuilder(
     markup=[
         [InlineKeyboardButton(text = 'Трек код боюнча',callback_data = 'track-code')],
-        [InlineKeyboardButton(text = 'Жеке жактар боюнча id',callback_data='client_id')]
+        [InlineKeyboardButton(text = 'Жеке id боюнча',callback_data='client_id')]
     ]
 )
 
@@ -118,6 +118,7 @@ set_variables_kbds = InlineKeyboardBuilder(
         [InlineKeyboardButton(text = 'Сменить пароль админа',callback_data = 'reset_password')],
         [InlineKeyboardButton(text = 'Сменить адрес Каракол',callback_data = 'reset_city_kk')],
         [InlineKeyboardButton(text = 'Сменить адрес Бишкек',callback_data = 'reset_city_bish')],
+        [InlineKeyboardButton(text = 'Выйти',callback_data='logout_admin')]
         
 
     ]

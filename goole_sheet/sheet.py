@@ -22,10 +22,6 @@ def append_products(df):
 def update_google_sheet(track_codes, new_status):
     sheet = client.open(title = 'Users').sheet1 
     data = sheet.get_all_records()
-    new_codes = []
-    # for row in data:
-    #     if row['Трек Код'] in track_codes:
-    #         row['Статус'] = new_status
     for row in data:
         if row['Трек Код'] in track_codes:
             row['Статус'] = new_status
@@ -63,9 +59,9 @@ def find_order_by_id(item_id,lang):
     if orders_info:
         return orders_info
     if lang == 'RU':
-        return f"У вас пока что нет товаров"
+        return f"У вас пока-что нет товаров"
     else:
-        return f"Сизде азырынча эч кандай өнүм жок"
+        return f"Сизде товар жок"
 
 def find_order_by_track_code(track_code,lang):
     track_code = str(track_code)  
@@ -88,7 +84,7 @@ def find_order_by_track_code(track_code,lang):
     if lang == 'RU':
         return 'Товар с таким трек-кодом не найден в базе'
     else:
-        return 'Бул трек коду бар продукт маалымат базасында табылган жок'
+        return 'Бул товар табылганжок'
 
 def register_client(data):
     spreadsheet = client.open(title='Users')

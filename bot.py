@@ -252,7 +252,7 @@ async def set_width(message:Message,state:FSMContext):
         if message.text.isdigit():
             cancel_calc = cancel_calc_kg
             await state.update_data(width = int(message.text))
-            await message.answer(text = 'Узундугун жазыныз (см)',reply_markup=cancel_calc)
+            await message.answer(text = 'Бийиктигин жазыныз (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.height)
         elif message.text == 'Артка':
             await message.answer(text = 'Акыркы аракетиңизди артка кайтардыңыз',reply_markup=default_kb)
@@ -280,7 +280,7 @@ async def set_height(message:Message,state:FSMContext):
         if message.text.isdigit():
             cancel_calc = cancel_calc_kg
             await state.update_data(height = int(message.text))
-            await message.answer(text = 'Салмагын жазыныз (см)',reply_markup=cancel_calc)
+            await message.answer(text = 'Салмагын жазыныз (кг)',reply_markup=cancel_calc)
             await state.set_state(Calculator.weight)
         elif message.text == 'Артка':
             await message.answer(text = 'Акыркы аракетиңизди артка кайтардыңыз',reply_markup=default_kb)
@@ -401,110 +401,143 @@ async def get_password(message:Message,state:FSMContext):
 
 @dp.callback_query(lambda query: query.data.startswith('set_'))
 async def set_variables(callback:CallbackQuery,state:FSMContext):
-    if callback.data == 'set_marketplace':
-        await callback.message.answer(text = 'Выберите у какого маркетплейса хотите поменять ссылку/текст',reply_markup=set_marketplace.as_markup())
-    if callback.data == 'set_prices':
-        await callback.message.answer(text = 'Выберите у какой переменной хотите поменять значение',reply_markup=set_price.as_markup())
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        if callback.data == 'set_marketplace':
+            await callback.message.answer(text = 'Выберите у какого маркетплейса хотите поменять ссылку/текст',reply_markup=set_marketplace.as_markup())
+        if callback.data == 'set_prices':
+            await callback.message.answer(text = 'Выберите у какой переменной хотите поменять значение',reply_markup=set_price.as_markup())
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 
 @dp.callback_query(lambda query: query.data.startswith('r_'))
 async def set_market(callback:CallbackQuery,state:FSMContext):
-    await state.update_data(data = {'data':callback.data[2:]})
-    await callback.message.answer(text = f'Введите новую ссылку для маркетплейса {callback.data[2:]}')
-    await state.set_state(Admin.set_price)
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await state.update_data(data = {'data':callback.data[2:]})
+        await callback.message.answer(text = f'Введите новую ссылку для маркетплейса {callback.data[2:]}')
+        await state.set_state(Admin.set_price)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 
 @dp.callback_query(lambda query: query.data.startswith('reset_city_'))
 async def reset_city(callback:CallbackQuery,state:FSMContext):
-    await callback.message.answer(text = 'Введите новый адресс в следующем формате:\n👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})')
-    await state.update_data(data = {'data':callback.data[11:]})
-    await state.set_state(Admin.set_price)
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await callback.message.answer(text = 'Введите новый адресс в следующем формате:\n👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})')
+        await state.update_data(data = {'data':callback.data[11:]})
+        await state.set_state(Admin.set_price)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 @dp.callback_query(lambda query: query.data == 'reset_password')
 async def reset_password(callback:CallbackQuery,state:FSMContext):
-    await callback.message.answer(text = 'Введите новый пароль')
-    await state.update_data(data = {'data':'resetpassword'})
-    await state.set_state(Admin.set_price)
-
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await callback.message.answer(text = 'Введите новый пароль')
+        await state.update_data(data = {'data':'resetpassword'})
+        await state.set_state(Admin.set_price)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 
 @dp.callback_query(lambda query: query.data == 're_whatsapp')
 async def re_whatsapp(callback:CallbackQuery,state:FSMContext):
-    await callback.message.answer(text = 'Введите новую ссылку для Whatsapp')
-    await state.update_data(data = {'data':'whatsapp'})
-    await state.set_state(Admin.set_price)
-
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await callback.message.answer(text = 'Введите новую ссылку для Whatsapp')
+        await state.update_data(data = {'data':'whatsapp'})
+        await state.set_state(Admin.set_price)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 @dp.callback_query(lambda query: query.data.startswith('p_'))
 async def set_price_v(callback:CallbackQuery,state:FSMContext):
-    await state.update_data(data = {'data':callback.data[8:]})
-    await callback.message.answer(text = 'Введите новое значение')
-    await state.set_state(Admin.set_price)
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await state.update_data(data = {'data':callback.data[8:]})
+        await callback.message.answer(text = 'Введите новое значение')
+        await state.set_state(Admin.set_price)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 
 @dp.callback_query(lambda query: query.data == 'send_broadcast')
 async def send_b(callback:CallbackQuery,state:FSMContext):
-    await callback.message.answer(text = 'Введите новость')
-    await state.set_state(Admin.news)
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        await callback.message.answer(text = 'Введите новость')
+        await state.set_state(Admin.news)
+    else:
+        await callback.message.answer(text = 'У вас нет прав')
 
 
 @dp.message(Admin.news)
 async def send_new(message:Message,state:FSMContext):
-    text = message.text
-    await send_news(text)
-    await message.answer(text = 'Новость успешно разослана')
-    await state.set_state()
+    data = await state.get_data()
+    if data.get('is_admin') == True:
+        text = message.text
+        await send_news(text)
+        await message.answer(text = 'Новость успешно разослана')
+        await state.set_state()
+    else:
+        await message.answer(text = 'У вас нет прав')
 
 
 @dp.message(Admin.set_price)
 async def set_price_v2(message:Message,state:FSMContext):
     data = await state.get_data()
-    new_value = message.text
-    global PRICE_VOLUME_BISH
-    global PRICE_VOLUME_KK
-    global PRICE_WEIGHT_BISH
-    global PRICE_WEIGHT_KK
-    global TAOBAO
-    global ONE_AND_SIX
-    global PINDUODUO
-    global POIZON
-    global LINK_WHATSAPP
-    global ADMIN_PASSWORD
-    global ADRESS_KK
-    global ADRESS_BISH
-    if '_' in data['data']:
-        if data['data'] == 'volume_bish':
-            PRICE_VOLUME_BISH = float(new_value)
-        elif data['data'] == 'volume_kk':
-            PRICE_VOLUME_KK = float(new_value)
-        elif data['data'] == 'weight_bish':
-            PRICE_WEIGHT_BISH = float(new_value)
-        elif data['data'] == 'weight_kk':
-            PRICE_WEIGHT_KK = float(new_value)
-        await message.answer(text = 'Вы успешно сменили цену')
-    elif data['data'] == 'whatsapp':
-        LINK_WHATSAPP = new_value
-        await message.answer(text = 'Вы успешно сменили ссылку на whatsapp')
-    elif data['data'] == 'resetpassword':
-        ADMIN_PASSWORD = new_value
-        await message.answer(text = 'Вы сменили пароль')
-    elif data['data'] == 'kk':  
-        ADRESS_KK = str(new_value)
-        await message.answer(text = 'Вы сменили адрес Каракол')
-    elif data['data'] == 'bish':
-        ADRESS_BISH = str(new_value)
-        await message.answer(text = 'Вы сменили адрес Бишкека')
+    if data.get('is_admin') == True:
+        new_value = message.text
+        global PRICE_VOLUME_BISH
+        global PRICE_VOLUME_KK
+        global PRICE_WEIGHT_BISH
+        global PRICE_WEIGHT_KK
+        global TAOBAO
+        global ONE_AND_SIX
+        global PINDUODUO
+        global POIZON
+        global LINK_WHATSAPP
+        global ADMIN_PASSWORD
+        global ADRESS_KK
+        global ADRESS_BISH
+        if '_' in data['data']:
+            if data['data'] == 'volume_bish':
+                PRICE_VOLUME_BISH = float(new_value)
+            elif data['data'] == 'volume_kk':
+                PRICE_VOLUME_KK = float(new_value)
+            elif data['data'] == 'weight_bish':
+                PRICE_WEIGHT_BISH = float(new_value)
+            elif data['data'] == 'weight_kk':
+                PRICE_WEIGHT_KK = float(new_value)
+            await message.answer(text = 'Вы успешно сменили цену')
+        elif data['data'] == 'whatsapp':
+            LINK_WHATSAPP = new_value
+            await message.answer(text = 'Вы успешно сменили ссылку на whatsapp')
+        elif data['data'] == 'resetpassword':
+            ADMIN_PASSWORD = new_value
+            await message.answer(text = 'Вы сменили пароль')
+        elif data['data'] == 'kk':  
+            ADRESS_KK = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Каракол')
+        elif data['data'] == 'bish':
+            ADRESS_BISH = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Бишкека')
+        else:
+            if data['data'] == 'taobao':
+                TAOBAO = new_value
+            elif data['data'] == 'pinduoduo':
+                PINDUODUO = new_value
+            elif data['data'] == 'poizon':
+                POIZON = new_value
+            elif data['data'] == '1688':
+                ONE_AND_SIX = new_value        
+            await message.answer(text = 'Вы успешно сменили ссылку')
+        await state.set_state()
     else:
-        if data['data'] == 'taobao':
-            TAOBAO = new_value
-        elif data['data'] == 'pinduoduo':
-            PINDUODUO = new_value
-        elif data['data'] == 'poizon':
-            POIZON = new_value
-        elif data['data'] == '1688':
-            ONE_AND_SIX = new_value        
-        await message.answer(text = 'Вы успешно сменили ссылку')
-    await state.set_state()
+        await message.answer(text = 'У вас нет прав')
 
 
 
@@ -548,7 +581,7 @@ async def send_video(message:Message,state:FSMContext):
     if data.get('language') == 'RU': 
         await message.answer(text = 'Выберите маркетплейс',reply_markup=instruction_kb.as_markup())
     else:
-        await message.answer(text = 'Базар тандаңыз',reply_markup=instruction_kb.as_markup())
+        await message.answer(text = 'Сайт тандаңыз',reply_markup=instruction_kb.as_markup())
 
 
 @dp.callback_query(lambda query: query.data.startswith('choose_'))
@@ -569,6 +602,11 @@ async def send_news(message):
         await bot.send_message(user_id,message)
 
 
+@dp.callback_query(lambda query: query.data == 'logout_admin')
+async def logout_admin(callback:CallbackQuery,state:FSMContext):
+    await state.clear()
+    await callback.message.answer(text = 'Вы вышли из режима администратора')
+    await state.set_state()
 
 
 async def main():
