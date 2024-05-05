@@ -175,7 +175,8 @@ async def set_name(message:Message,state:FSMContext):
 
 @dp.message(UserState.full_name)
 async def set_full_name(message:Message,state:FSMContext):
-    await state.update_data(full_name = message.text)
+    fullname = message.text.split()[0]
+    await state.update_data(full_name = fullname)
     await state.set_state(UserState.phone_number)
     data = await state.get_data()
     if data['language'] == 'RU':

@@ -54,6 +54,7 @@ def find_order_by_id(item_id,lang):
     df = pd.DataFrame(data[1:], columns=data[0]) 
     items = df[df['Код клиента'] == item_id]  
     orders_info = ""
+    k = 0
     for index, row in items.iterrows():
         if row['Статус'] == 'В Пути':
             status = '🚛 В Пути'
@@ -61,7 +62,7 @@ def find_order_by_id(item_id,lang):
             status = '🏬 На Складе'
         if row['Статус'] == 'В КР':
             status = '🇰🇬 в КР'
-        orders_info += f"Код: {row['Трек Код']}, {status}\nДата изменения статуса: {row['Дата']}\n"
+        orders_info += f"Код: {row['Трек Код']}, {status}\nДата: {row['Дата']}\n———————————————-\n"
     if orders_info:
         return orders_info
     if lang == 'RU':
@@ -86,7 +87,7 @@ def find_order_by_track_code(track_code,lang):
             status = '🏬 На Складе'
         if status == 'В КР':
             status = '🇰🇬 в КР'
-        info = f'Код: {track_code}, {status}\nДата изменения статуса: {time}\n'
+        info = f'Код: {track_code}, {status}\nДата: {time}\n'
         return info
     if lang == 'RU':
         return 'Товар с таким трек-кодом не найден в базе'
@@ -127,7 +128,10 @@ def find_user_by_data(phone_number,client_id,lang):
                     'language':lang
                     }
             return data
-    return 'Извините, клиента с такими данными нет в базе.\nПопробуйте еще раз'
+    if lang == 'RU':
+        return 'Извините, неверный номер или код'
+    else:
+        return 'Кечиресиз, номер же жеке код туура эмес'
 
     
 
