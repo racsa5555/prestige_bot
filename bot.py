@@ -13,8 +13,8 @@ from decouple import config
 
 from aiogram.fsm.context import FSMContext
 
-from goole_sheet import register_client,find_order_by_id,update_google_sheet,find_order_by_track_code,update_client_by_id,append_products
-from states import UserState,Calculator,Admin,Track_code
+from goole_sheet import register_client,find_order_by_id,update_google_sheet,find_order_by_track_code,update_client_by_id,append_products,find_user_by_data
+from states import UserState,Calculator,Admin,Track_code,RegisterState
 from kbds import *
 from variables import *
 
@@ -74,25 +74,87 @@ async def hi(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     if data['language'] == 'RU':
         data.pop('language')
-        if not data:
-            await message.answer(text = 'Здравствуйте 👋\nПеред использованием бота нужно пройти регистрацию 😎')
-            await message.answer(text = 'С какого Вы города',reply_markup=set_city_kb.as_markup())
+        if not data or len(data) == 1:
+            await message.answer(text = 'Здравствуйте 👋\nПеред использованием бота нужно пройти регистрацию или войти',reply_markup = login_or_register_ru)
         else:
             await message.answer(text = 'Вы уже вошли в аккаунт')
     else:
         data.pop('language')
-        if not data:
-            await message.answer(text = 'Саламатсызбы \n ботту иштеткен ге чейин сөссүз катталып алышыңыз керек 😎')
-            await message.answer(text = 'Кайсыл шаардан болосуз?',reply_markup=set_city_kb.as_markup())
+        if not data or len(data) == 1:
+            await message.answer(text = 'Саламатсызбы\nБотту иштетүүгө чейин сөссүз катталып алышыңыз керек же кирүү',reply_markup = login_or_register_kg)
         else:
             await message.answer(text = 'Сиз уже катталгынсыз')
 
+
+@dp.message(F.text.in_({'Пройти регистрацию','Катталуу'}))
+async def register(message:Message,state:FSMContext):
+    data = await state.get_data()
+    if data['language'] == 'RU':
+        await message.answer(text = 'С какого Вы города',reply_markup=set_city_kb.as_markup())
+    else:
+        await message.answer(text = 'Кайсыл шаардан болосуз?',reply_markup=set_city_kb.as_markup())
+
+
+@dp.message(F.text.in_({'Войти','Кируу'}))
+async def login(message:Message, state: FSMContext):
+    data = await state.get_data()
+    if data['language'] == 'RU':
+        await message.answer(text = 'Введите номер телефона',reply_markup=cancel_calc_ru)
+    else:
+        await message.answer(text = 'Телефон номериңизди жазыныз',reply_markup=cancel_calc_kg)
+    await state.set_state(RegisterState.phone_number)
+
+@dp.message(RegisterState.phone_number)
+async def set_ph_n(message:Message,state:FSMContext):
+    if message.text == 'Отмена' or message.text == 'Артка':
+        await hi(message,state)
+        return
+    data = await state.get_data()
+    await state.update_data(phone_number = message.text)
+    if data['language'] == 'RU':
+        text = 'Введите персональный код'
+        mark = cancel_calc_ru
+    else:
+        text = 'Жеке код жазыныз'
+        mark = cancel_calc_kg
+    await message.answer(text = text,reply_markup=mark)
+    await state.set_state(RegisterState.client_id)
+
+@dp.message(RegisterState.client_id)
+async def set_id(message:Message,state:FSMContext):
+    if message.text == 'Отмена' or message.text == 'Артка':
+        await hi(message,state)
+        return
+    else:
+        data = await state.get_data()
+        phone_number = data.get('phone_number')
+        client_id = message.text
+        if data.get('language') == 'RU':
+            await message.answer(text = 'Обработка, подождите несколько секунд...')
+        else:
+            await message.answer(text = 'Күтүп турунуз...')
+        res = find_user_by_data(phone_number,client_id,data['language'])
+        if type(res) == dict:
+            await state.set_data(res)
+            await message.answer(text = send_profile(res),reply_markup=default_kb_ru)
+            await state.set_state()
+        else:
+            await message.answer(text = res)
+
 @dp.callback_query(lambda query: query.data.startswith('city_set'))
 async def set_bish(callback:CallbackQuery,state:FSMContext):
-    if callback.data == 'city_set_kk':
-        await state.update_data(city = 'KK')
-    else:
+    if callback.data == 'city_set_bish':
         await state.update_data(city = 'BISH')
+    elif callback.data == 'city_set_gulcho':
+        await state.update_data(city = 'GULCHO')
+    elif callback.data == 'city_set_osh':
+        await state.update_data(city = 'OSH')
+    elif callback.data == 'city_set_tokmok':
+        await state.update_data(city = 'TOKMOK')
+    elif callback.data == 'city_set_sokuluk':
+        await state.update_data(city = 'SOKULUK')
+
+
     data = await state.get_data()
     if data['language'] == 'RU':
         await callback.message.answer(text = 'Как Вас зовут?')
@@ -121,6 +183,7 @@ async def set_full_name(message:Message,state:FSMContext):
     else:
         await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 996ХХХХХХХХХ')
 
+
 @dp.message(UserState.phone_number)
 async def set_phone_number(message:Message,state:FSMContext):
     if message.text.isdigit():
@@ -132,7 +195,6 @@ async def set_phone_number(message:Message,state:FSMContext):
             data_new = {'Город':data.get('city'),
                         'ФИО':fio,
                         'Номер':data.get('phone_number')}
-            update_client_by_id(data.get('id'),data_new)
             if data['language'] == 'RU':
                 default_kb = default_kb_ru
                 profile_kb = profile_kb_ru
@@ -143,6 +205,7 @@ async def set_phone_number(message:Message,state:FSMContext):
                 profile_kb = profile_kb_kg
                 await message.answer(text = '✅ Ийгиликтүү профильди өзгөртүп алдыныз !',reply_markup=default_kb)
                 await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
+            update_client_by_id(data.get('id'),data_new)
             await state.set_state()
         else:
             global id
@@ -185,10 +248,13 @@ async def get_profile(message:Message,state:FSMContext):
 @dp.message(F.text[1:].in_({'Адреса','Дарек'}))
 async def get_address(message:Message,state:FSMContext):
     global ADRESS_BISH
-    global ADRESS_KK
+    global ADRESS_OSH
+    global ADRESS_SOKULUK
+    global ADRESS_TOKMOK
+    global ADRESS_GULCHO
     data = await state.get_data()
     lang = data.get('language')
-    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_KK,ADRESS_BISH))
+    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_BISH,ADRESS_OSH,ADRESS_TOKMOK,ADRESS_SOKULUK,ADRESS_GULCHO))
     await message.answer(text = res)
 
 
@@ -227,6 +293,7 @@ async def set_length(message:Message,state:FSMContext):
             await message.answer(text = 'Туурасын жазыныз (см)',reply_markup=cancel_calc)
             await state.set_state(Calculator.width)
         elif message.text == 'Артка':
+            default_kb = default_kb_kg
             await message.answer(text = 'Акыркы аракетиңизди артка кайтардыңыз',reply_markup=default_kb)
             await state.set_state()
         else:
@@ -306,16 +373,31 @@ async def set_width(message:Message,state:FSMContext):
     if message.text.isdigit():
         await state.update_data(weight = int(message.text))
         data = await state.get_data()
-        if data.get('city') == 'KK':
-            global PRICE_VOLUME_KK
-            global PRICE_WEIGHT_KK
-            price_weight = PRICE_WEIGHT_KK
-            price_volume = PRICE_VOLUME_KK
-        elif data.get('city') == 'BISH':
+        if data.get('city') == 'BISH':
             global PRICE_VOLUME_BISH
             global PRICE_WEIGHT_BISH
             price_weight = PRICE_WEIGHT_BISH
             price_volume = PRICE_VOLUME_BISH
+        elif data.get('city') == 'OSH':
+            global PRICE_VOLUME_OSH
+            global PRICE_WEIGHT_OSH
+            price_weight = PRICE_WEIGHT_OSH
+            price_volume = PRICE_VOLUME_OSH
+        elif data.get('city') == 'SOKULUK':
+            global PRICE_VOLUME_SOKULUK
+            global PRICE_WEIGHT_SOKULUK
+            price_weight = PRICE_WEIGHT_SOKULUK
+            price_volume = PRICE_VOLUME_SOKULUK
+        if data.get('city') == 'TOKMOK':
+            global PRICE_VOLUME_TOKMOK
+            global PRICE_WEIGHT_TOKMOK
+            price_weight = PRICE_WEIGHT_TOKMOK
+            price_volume = PRICE_VOLUME_TOKMOK
+        if data.get('city') == 'GULCHO':
+            global PRICE_VOLUME_GULCHO
+            global PRICE_WEIGHT_GULCHO
+            price_weight = PRICE_WEIGHT_GULCHO
+            price_volume = PRICE_VOLUME_GULCHO
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
         weight_price = data['weight'] * price_weight
         max_price = round(max(volume_price,weight_price),1)
@@ -351,6 +433,10 @@ async def tracking_by_client_id(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     client_id = data.get('id')
     lang = data.get('language')
+    if data.get('language') == 'RU':
+        await callback.message.answer(text = 'Обработка, подождите несколько секунд...')
+    else:
+        await callback.message.answer(text = 'Күтүп турунуз...')
     res = find_order_by_id(str(client_id),lang)
     await callback.message.answer(text = res)
 
@@ -380,6 +466,10 @@ async def track_code(message:Message,state:FSMContext):
         await state.set_state()
     else: 
         data = await state.get_data()
+        if data.get('language') == 'RU':
+            await message.answer(text = 'Обработка, подождите несколько секунд...')
+        else:
+            await message.answer(text = 'Күтүп турунуз...')
         res = find_order_by_track_code(track_code,data.get('language'))
         await message.answer(text = res)
 
@@ -490,28 +580,49 @@ async def send_new(message:Message,state:FSMContext):
 async def set_price_v2(message:Message,state:FSMContext):
     data = await state.get_data()
     if data.get('is_admin') == True:
-        new_value = message.text
+        new_value = message.text    
         global PRICE_VOLUME_BISH
-        global PRICE_VOLUME_KK
         global PRICE_WEIGHT_BISH
-        global PRICE_WEIGHT_KK
+        global PRICE_VOLUME_OSH
+        global PRICE_WEIGHT_OSH
+        global PRICE_VOLUME_TOKMOK
+        global PRICE_WEIGHT_TOKMOK
+        global PRICE_VOLUME_SOKULUK
+        global PRICE_WEIGHT_SOKULUK
+        global PRICE_VOLUME_GULCHO
+        global PRICE_WEIGHT_GULCHO
         global TAOBAO
         global ONE_AND_SIX
         global PINDUODUO
         global POIZON
         global LINK_WHATSAPP
         global ADMIN_PASSWORD
-        global ADRESS_KK
         global ADRESS_BISH
+        global ADRESS_OSH
+        global ADRESS_GULCHO
+        global ADRESS_TOKMOK
+        global ADRESS_SOKULUK
         if '_' in data['data']:
             if data['data'] == 'volume_bish':
                 PRICE_VOLUME_BISH = float(new_value)
-            elif data['data'] == 'volume_kk':
-                PRICE_VOLUME_KK = float(new_value)
             elif data['data'] == 'weight_bish':
                 PRICE_WEIGHT_BISH = float(new_value)
-            elif data['data'] == 'weight_kk':
-                PRICE_WEIGHT_KK = float(new_value)
+            if data['data'] == 'volume_osh':
+                PRICE_VOLUME_OSH = float(new_value)
+            elif data['data'] == 'weight_osh':
+                PRICE_WEIGHT_OSH = float(new_value)
+            if data['data'] == 'volume_sokuluk':
+                PRICE_VOLUME_SOKULUK = float(new_value)
+            elif data['data'] == 'weight_sokuluk':
+                PRICE_WEIGHT_SOKULUK = float(new_value)
+            if data['data'] == 'volume_tokmok':
+                PRICE_VOLUME_TOKMOK = float(new_value)
+            elif data['data'] == 'weight_tokmok':
+                PRICE_WEIGHT_TOKMOK = float(new_value)
+            if data['data'] == 'volume_gulcho':
+                PRICE_VOLUME_GULCHO = float(new_value)
+            elif data['data'] == 'weight_gulcho':
+                PRICE_WEIGHT_GULCHO = float(new_value)
             await message.answer(text = 'Вы успешно сменили цену')
         elif data['data'] == 'whatsapp':
             LINK_WHATSAPP = new_value
@@ -519,12 +630,21 @@ async def set_price_v2(message:Message,state:FSMContext):
         elif data['data'] == 'resetpassword':
             ADMIN_PASSWORD = new_value
             await message.answer(text = 'Вы сменили пароль')
-        elif data['data'] == 'kk':  
-            ADRESS_KK = str(new_value)
-            await message.answer(text = 'Вы сменили адрес Каракол')
-        elif data['data'] == 'bish':
+        if data['data'] == 'bish':
             ADRESS_BISH = str(new_value)
             await message.answer(text = 'Вы сменили адрес Бишкека')
+        elif data['data'] == 'osh':
+            ADRESS_OSH = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Оша')
+        elif data['data'] == 'sokuluk':
+            ADRESS_SOKULUK = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Сокулук')
+        elif data['data'] == 'tokmok':
+            ADRESS_TOKMOK = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Токмок')
+        elif data['data'] == 'gulcho':
+            ADRESS_GULCHO = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Гулчо')
         else:
             if data['data'] == 'taobao':
                 TAOBAO = new_value

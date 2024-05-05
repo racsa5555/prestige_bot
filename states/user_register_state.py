@@ -11,6 +11,11 @@ class UserState(StatesGroup):
     language = State()
     hi = State()
 
+class RegisterState(StatesGroup):
+    phone_number = State()
+    client_id = State()
+
+
 class Track_code(StatesGroup):
     track_code = State()
 
