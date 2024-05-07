@@ -1,5 +1,4 @@
 import asyncio 
-from typing import Any, Dict
 
 import pandas as pd
 from aiogram import Bot, Dispatcher
@@ -7,7 +6,6 @@ from aiogram import types
 from aiogram.types import Message,CallbackQuery
 from aiogram.filters import CommandStart,Command
 from aiogram import F
-
 
 from decouple import config
 
@@ -164,18 +162,25 @@ async def set_bish(callback:CallbackQuery,state:FSMContext):
 
 @dp.message(UserState.name)
 async def set_name(message:Message,state:FSMContext):
-    await state.update_data(name = message.text)
-    await state.set_state(UserState.full_name)
-    data = await state.get_data()
-    if data['language'] == 'RU':
-        await message.answer(text = 'Как Ваша фамилия?')
+    if len(message.text.split()) == 1:
+        await state.update_data(name = message.text)
+        await state.set_state(UserState.full_name)
+        data = await state.get_data()
+        if data['language'] == 'RU':
+            await message.answer(text = 'Как Ваша фамилия?')
+        else:
+            await message.answer(text = 'Сиздин фамилияңыз кандай?')
     else:
-        await message.answer(text = 'Сиздин фамилияңыз кандай?')
+        if data['language'] == 'RU':
+            await message.answer('❗️ Неверный формат ввода ❗️\nПопробуйте снова')
+        else:
+            await message.answer('❗️ Туура эмес формат ❗️\nКайра жазып көрүнүз')
 
 
 @dp.message(UserState.full_name)
 async def set_full_name(message:Message,state:FSMContext):
-    fullname = message.text.split()[0]
+    mas = message.text.split()
+    fullname = ''.join(mas)
     await state.update_data(full_name = fullname)
     await state.set_state(UserState.phone_number)
     data = await state.get_data()
