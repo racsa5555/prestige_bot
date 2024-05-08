@@ -26,7 +26,7 @@ bot = Bot(TOKEN)
 
 dp = Dispatcher()
 
-id = 2104
+id = 2000
 
 @dp.message(CommandStart())
 async def start(message: types.Message):
@@ -162,10 +162,10 @@ async def set_bish(callback:CallbackQuery,state:FSMContext):
 
 @dp.message(UserState.name)
 async def set_name(message:Message,state:FSMContext):
+    data = await state.get_data()
     if len(message.text.split()) == 1:
         await state.update_data(name = message.text)
         await state.set_state(UserState.full_name)
-        data = await state.get_data()
         if data['language'] == 'RU':
             await message.answer(text = 'Как Ваша фамилия?')
         else:
@@ -185,9 +185,9 @@ async def set_full_name(message:Message,state:FSMContext):
     await state.set_state(UserState.phone_number)
     data = await state.get_data()
     if data['language'] == 'RU':
-        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 996ХХХХХХХХХ')
+        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 0708999963')
     else:
-        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 996ХХХХХХХХХ')
+        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 0708999963')
 
 
 @dp.message(UserState.phone_number)
@@ -197,7 +197,7 @@ async def set_phone_number(message:Message,state:FSMContext):
         data = await state.get_data()
         update =  data.get('update')
         if update == True:
-            fio = data.get('full_name') + data.get('name')
+            fio = data.get('full_name') +' ' + data.get('name')
             data_new = {'Город':data.get('city'),
                         'ФИО':fio,
                         'Номер':data.get('phone_number')}
@@ -522,7 +522,7 @@ async def set_market(callback:CallbackQuery,state:FSMContext):
 async def reset_city(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     if data.get('is_admin') == True:
-        await callback.message.answer(text = 'Введите новый адресс в следующем формате:\n👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})')
+        await callback.message.answer(text = '👤怡宝YBS-{}\n☎️ 15147091118\n{}: \n广东省广州市白云区江高镇南岗三元南路62号安托仓储1119怡宝YBS库房-{} ({})\nПочтовый индекс: 510440')
         await state.update_data(data = {'data':callback.data[11:]})
         await state.set_state(Admin.set_price)
     else:
@@ -670,7 +670,7 @@ async def set_price_v2(message:Message,state:FSMContext):
 @dp.message(F.document)
 async def handle_admin_documents(message: types.Message, state: FSMContext):
     data = await state.get_data()
-    statuses = {'На Складе','В Пути','В КР'}
+    statuses = {'В Китае','В Пути','В КР'}
     if data.get("is_admin") == True:
         if message.caption not in statuses:
             await message.answer(text = f'Введите к прикрепленному файлу один из статусов:{statuses}')
@@ -733,6 +733,17 @@ async def logout_admin(callback:CallbackQuery,state:FSMContext):
     await state.clear()
     await callback.message.answer(text = 'Вы вышли из режима администратора')
     await state.set_state()
+
+@dp.callback_query(lambda query: query.data == 'logout_profile')
+async def logout_profile(callback:CallbackQuery,state:FSMContext):
+    data = await state.get_data()
+    if data['language'] == 'RU':
+        await callback.message.answer(text = 'Вы вышли из профиля')
+    else:
+        await callback.message.answer(text = 'Профилден чыктыныз')
+    await state.clear()
+    await state.update_data({'language':data['language']})
+    await hi(callback.message,state)
 
 
 async def main():

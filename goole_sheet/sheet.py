@@ -60,8 +60,8 @@ def find_order_by_id(item_id,lang):
     for index, row in items.iterrows():
         if row['Статус'] == 'В Пути':
             status = '🚛 В Пути'
-        if row['Статус'] == 'На Складе':
-            status = '🏬 На Складе'
+        if row['Статус'] == 'В Китае':
+            status = '🇨🇳 На Складе'
         if row['Статус'] == 'В КР':
             status = '🇰🇬 в КР'
         orders_info += f"Код: {row['Трек Код']}, {status}\nДата: {row['Дата']}\n———————————————-\n"
@@ -85,8 +85,8 @@ def find_order_by_track_code(track_code,lang):
         time = item.iloc[0]['Дата']
         if status == 'В Пути':
             status = '🚛 В Пути'
-        if status == 'На Складе':
-            status = '🏬 На Складе'
+        if status == 'В Китае':
+            status = '🇨🇳 На Складе'
         if status == 'В КР':
             status = '🇰🇬 в КР'
         info = f'Код: {track_code}, {status}\nДата: {time}\n'

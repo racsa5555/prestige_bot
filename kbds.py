@@ -43,13 +43,16 @@ set_city_kb = InlineKeyboardBuilder(
 profile_kb_ru = InlineKeyboardBuilder(
     markup=[
         [InlineKeyboardButton(text = 'Изменить профиль',callback_data='update_profile')],
-        [get_lang_kb('RU')]
+        [get_lang_kb('RU')],
+        [InlineKeyboardButton(text = 'Выйти из профиля',callback_data = 'logout_profile')]
+
     ]
 )
 profile_kb_kg = InlineKeyboardBuilder(
     markup=[
         [InlineKeyboardButton(text = 'Профилди өзгөртүү',callback_data='update_profile')],
-        [get_lang_kb('KG')]
+        [get_lang_kb('KG')],
+        [InlineKeyboardButton(text = 'Профилден чыгуу',callback_data = 'logout_profile')]
     ]
 )
 default_kb_ru = ReplyKeyboardMarkup(
