@@ -18,7 +18,7 @@ def append_products(df):
     current_date = date.strftime("%m-%d")
     values = df.values.tolist()
     for row in values:
-        row.append('На Складе')
+        row.append('В Китае')
         row.append(current_date)
         row = [str(value) for value in row]
     sheet.append_rows(values)

@@ -683,7 +683,7 @@ async def handle_admin_documents(message: types.Message, state: FSMContext):
             track_codes = df.iloc[:,0].to_list()
             data = df.iloc[:, :2]
             new_status = message.caption
-            if new_status == 'На Складе':
+            if new_status == 'В Китае':
                 append_products(data)
                 await message.answer('Все готово,проверьте')
             else:
