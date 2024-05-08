@@ -14,7 +14,7 @@ client = gspread.authorize(credentials)
 def append_products(df):
     sheet = client.open(title = 'Amanat').sheet1
     tz = timezone(timedelta(hours=6))
-    date = datetime.datetime.now(tz)
+    date = datetime.now(tz)
     current_date = date.strftime("%m-%d")
     values = df.values.tolist()
     for row in values:
@@ -28,7 +28,7 @@ def update_google_sheet(track_codes, new_status):
     sheet = client.open(title = 'Amanat').sheet1 
     data = sheet.get_all_records()
     tz = timezone(timedelta(hours=6))
-    date = datetime.datetime.now(tz)
+    date = datetime.now(tz)
     current_date = date.strftime("%m-%d")
     for row in data:
         if row['Трек Код'] in track_codes:

@@ -228,6 +228,7 @@ async def set_phone_number(message:Message,state:FSMContext):
             else:
                 default_kb = default_kb_kg
                 profile_kb = profile_kb_kg
+                LIST_USERS.add(message.from_user.id)
                 await message.answer(text = '✅ Ийгиликтүү каттоо !',reply_markup=default_kb)
                 await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
             register_client(data)
