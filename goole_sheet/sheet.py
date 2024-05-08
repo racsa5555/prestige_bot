@@ -119,6 +119,13 @@ def find_user_by_data(phone_number,client_id,lang):
     spreadsheet = client.open('Amanat')
     sheets = spreadsheet.worksheets()
     sheet = sheets[1]
+    if client_id.isdigit() == False:
+        if lang == 'RU':
+            return 'Извините, неверный номер или код'
+        else:
+            return 'Кечиресиз, номер же жеке код туура эмес'
+
+
     data = sheet.get_all_records()
     for i, row in enumerate(data, start=2):
         if row['id'] == int(client_id) and row['Номер'] == int(phone_number):
