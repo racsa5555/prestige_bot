@@ -35,9 +35,14 @@ set_city_kb = InlineKeyboardBuilder(
     markup= [
         [InlineKeyboardButton(text = 'Бишкек',callback_data='city_set_bish')],
         [InlineKeyboardButton(text = 'Ош',callback_data='city_set_osh')],
-        [InlineKeyboardButton(text = 'Гулчо',callback_data='city_set_gulcho')],
-        [InlineKeyboardButton(text = 'Сокулук',callback_data='city_set_sokuluk')],
-        [InlineKeyboardButton(text = 'Токмок',callback_data='city_set_tokmok')]
+        [InlineKeyboardButton(text = 'Талас',callback_data='city_set_talas')],
+        [InlineKeyboardButton(text = 'Жалал-Абад',callback_data='city_set_jl')],
+        [InlineKeyboardButton(text = 'Узген',callback_data='city_set_uz')],
+        [InlineKeyboardButton(text = 'Таш-Комур',callback_data='city_set_tash')],
+        [InlineKeyboardButton(text = 'Ноокат',callback_data='city_set_nookat')],
+        [InlineKeyboardButton(text = 'Баткен',callback_data='city_set_batken')],
+        [InlineKeyboardButton(text = 'Екатеринбург',callback_data='city_set_eka')],
+        [InlineKeyboardButton(text = 'Москва',callback_data='city_set_msk')],
         ]
 )
 profile_kb_ru = InlineKeyboardBuilder(
@@ -143,9 +148,14 @@ set_variables_kbds = InlineKeyboardBuilder(
         [InlineKeyboardButton(text = 'Сменить пароль админа',callback_data = 'reset_password')],
         [InlineKeyboardButton(text = 'Сменить адрес Бишкек',callback_data = 'reset_city_bish')],
         [InlineKeyboardButton(text = 'Сменить адрес Ош',callback_data = 'reset_city_osh')],
-        [InlineKeyboardButton(text = 'Сменить адрес Гулчо',callback_data = 'reset_city_gulcho')],
-        [InlineKeyboardButton(text = 'Сменить адрес Сокулук',callback_data = 'reset_city_sokuluk')],
-        [InlineKeyboardButton(text = 'Сменить адрес Токмок',callback_data = 'reset_city_tokmok')],
+        [InlineKeyboardButton(text = 'Сменить адрес Жалал-Абад',callback_data = 'reset_city_jl')],
+        [InlineKeyboardButton(text = 'Сменить адрес Узген',callback_data = 'reset_city_uz')],
+        [InlineKeyboardButton(text = 'Сменить адрес Таш-Комур',callback_data = 'reset_city_tash')],
+        [InlineKeyboardButton(text = 'Сменить адрес Ноокат',callback_data = 'reset_city_nookat')],
+        [InlineKeyboardButton(text = 'Сменить адрес Баткен',callback_data = 'reset_city_batken')],
+        [InlineKeyboardButton(text = 'Сменить адрес Екатеринбург',callback_data = 'reset_city_eka')],
+        [InlineKeyboardButton(text = 'Сменить адрес Москва',callback_data = 'reset_city_msk')],
+        [InlineKeyboardButton(text = 'Сменить адрес Талас',callback_data = 'reset_city_talas')],
         [InlineKeyboardButton(text = 'Выйти',callback_data='logout_admin')]
     ]
 )
@@ -165,12 +175,22 @@ set_price = InlineKeyboardBuilder(
         [InlineKeyboardButton(text = 'Цена по обьему в Бишкеке',callback_data = 'p_price_volume_bish')],
         [InlineKeyboardButton(text = 'Цена по весу в Оше',callback_data = 'p_price_weight_osh')],
         [InlineKeyboardButton(text = 'Цена по обьему в Оше',callback_data = 'p_price_volume_osh')],
-        [InlineKeyboardButton(text = 'Цена по весу в Гулчо',callback_data = 'p_price_weight_gulcho')],
-        [InlineKeyboardButton(text = 'Цена по обьему в Гулчо',callback_data = 'p_price_volume_gulcho')],
-        [InlineKeyboardButton(text = 'Цена по весу в Токмок',callback_data = 'p_price_weight_tokmok')],
-        [InlineKeyboardButton(text = 'Цена по обьему в Токмок',callback_data = 'p_price_volume_tokmok')],
-        [InlineKeyboardButton(text = 'Цена по весу в Сокулук',callback_data = 'p_price_weight_sokuluk')],
-        [InlineKeyboardButton(text = 'Цена по обьему в Сокулук',callback_data = 'p_price_volume_sokuluk')]
+        [InlineKeyboardButton(text = 'Цена по весу в Жалал-Абад',callback_data = 'p_price_weight_jl')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Жалал-Абад',callback_data = 'p_price_volume_jl')],
+        [InlineKeyboardButton(text = 'Цена по весу в Талас',callback_data = 'p_price_weight_talas')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Талас',callback_data = 'p_price_volume_talas')],
+        [InlineKeyboardButton(text = 'Цена по весу в Таш-Комур',callback_data = 'p_price_weight_tash')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Таш-Комур',callback_data = 'p_price_volume_tash')],
+        [InlineKeyboardButton(text = 'Цена по весу в Ноокат',callback_data = 'p_price_weight_nookat')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Ноокат',callback_data = 'p_price_volume_nookat')],
+        [InlineKeyboardButton(text = 'Цена по весу в Баткен',callback_data = 'p_price_weight_batken')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Баткен',callback_data = 'p_price_volume_batken')],
+        [InlineKeyboardButton(text = 'Цена по весу в Узген',callback_data = 'p_price_weight_uz')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Узген',callback_data = 'p_price_volume_uz')],
+        [InlineKeyboardButton(text = 'Цена по весу в Екатеринберг',callback_data = 'p_price_weight_eka')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Екатеринберг',callback_data = 'p_price_volume_eka')],
+        [InlineKeyboardButton(text = 'Цена по весу в Москва',callback_data = 'p_price_weight_msk')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Москва',callback_data = 'p_price_volume_msk')],
     ]
 )
         

@@ -29,12 +29,16 @@ dp = Dispatcher()
 id = 2000
 
 @dp.message(CommandStart())
-async def start(message: types.Message):
+async def start(message: types.Message,state:FSMContext):
     language_kb = InlineKeyboardBuilder(
     markup=[
         [InlineKeyboardButton(text = '🇷🇺',callback_data='lang_RU'),
         InlineKeyboardButton(text = '🇰🇬',callback_data='lang_KG')]
     ])
+    ref = message.text.split()
+    if len(ref) == 2:
+        if ref == 'wsayMHwjKHdY':
+            await state.update_data(ref = ref)
     await message.answer("Выберите язык / Тилди тандаңыз:", reply_markup=language_kb.as_markup())
 
 
@@ -143,14 +147,24 @@ async def set_id(message:Message,state:FSMContext):
 async def set_bish(callback:CallbackQuery,state:FSMContext):
     if callback.data == 'city_set_bish':
         await state.update_data(city = 'BISH')
-    elif callback.data == 'city_set_gulcho':
-        await state.update_data(city = 'GULCHO')
+    elif callback.data == 'city_set_jl':
+        await state.update_data(city = 'JL')
     elif callback.data == 'city_set_osh':
         await state.update_data(city = 'OSH')
-    elif callback.data == 'city_set_tokmok':
-        await state.update_data(city = 'TOKMOK')
-    elif callback.data == 'city_set_sokuluk':
-        await state.update_data(city = 'SOKULUK')
+    elif callback.data == 'city_set_talas':
+        await state.update_data(city = 'TA')
+    elif callback.data == 'city_set_batken':
+        await state.update_data(city = 'BAT')
+    elif callback.data == 'city_set_uz':
+        await state.update_data(city = 'UZ')
+    elif callback.data == 'city_set_nookat':
+        await state.update_data(city = 'N')
+    elif callback.data == 'city_set_msk':
+        await state.update_data(city = 'MOS')
+    elif callback.data == 'city_set_eka':
+        await state.update_data(city = 'EKA')
+    elif callback.data == 'city_set_tash':
+        await state.update_data(city = 'TASH')
 
 
     data = await state.get_data()
@@ -211,7 +225,7 @@ async def set_phone_number(message:Message,state:FSMContext):
                 profile_kb = profile_kb_kg
                 await message.answer(text = '✅ Ийгиликтүү профильди өзгөртүп алдыныз !',reply_markup=default_kb)
                 await message.answer(text = send_profile(data),reply_markup=profile_kb.as_markup())
-            update_client_by_id(data.get('id'),data_new)
+            update_client_by_id(data.get('id'),data_new,data.get('ref'))
             await state.set_state()
         else:
             global id
@@ -390,21 +404,42 @@ async def set_width(message:Message,state:FSMContext):
             global PRICE_WEIGHT_OSH
             price_weight = PRICE_WEIGHT_OSH
             price_volume = PRICE_VOLUME_OSH
-        elif data.get('city') == 'SOKULUK':
-            global PRICE_VOLUME_SOKULUK
-            global PRICE_WEIGHT_SOKULUK
-            price_weight = PRICE_WEIGHT_SOKULUK
-            price_volume = PRICE_VOLUME_SOKULUK
-        if data.get('city') == 'TOKMOK':
-            global PRICE_VOLUME_TOKMOK
-            global PRICE_WEIGHT_TOKMOK
-            price_weight = PRICE_WEIGHT_TOKMOK
-            price_volume = PRICE_VOLUME_TOKMOK
-        if data.get('city') == 'GULCHO':
-            global PRICE_VOLUME_GULCHO
-            global PRICE_WEIGHT_GULCHO
-            price_weight = PRICE_WEIGHT_GULCHO
-            price_volume = PRICE_VOLUME_GULCHO
+        elif data.get('city') == 'JL':
+            global PRICE_VOLUME_JL
+            global PRICE_WEIGHT_JL
+            price_weight = PRICE_WEIGHT_JL
+            price_volume = PRICE_VOLUME_JL
+        elif data.get('city') == 'TA':
+            global PRICE_VOLUME_TALAS
+            global PRICE_WEIGHT_TALAS
+            price_weight = PRICE_WEIGHT_TALAS
+            price_volume = PRICE_VOLUME_TALAS
+        elif data.get('city') == 'UZ':
+            global PRICE_VOLUME_UZ
+            global PRICE_WEIGHT_UZ
+            price_weight = PRICE_WEIGHT_UZ
+            price_volume = PRICE_VOLUME_UZ
+        elif data.get('city') == 'TASH':
+            global PRICE_VOLUME_TASH
+            global PRICE_WEIGHT_TASH
+            price_weight = PRICE_WEIGHT_TASH
+            price_volume = PRICE_VOLUME_TASH
+        elif data.get('city') == 'BAT':
+            global PRICE_VOLUME_BATKEN
+            global PRICE_WEIGHT_BATKEN
+            price_weight = PRICE_WEIGHT_BATKEN
+            price_volume = PRICE_VOLUME_BATKEN
+        elif data.get('city') == 'EKA':
+            global PRICE_VOLUME_EKA
+            global PRICE_WEIGHT_EKA
+            price_weight = PRICE_WEIGHT_EKA
+            price_volume = PRICE_VOLUME_EKA
+        elif data.get('city') == 'MOS':
+            global PRICE_VOLUME_MSK
+            global PRICE_WEIGHT_MSK
+            price_weight = PRICE_WEIGHT_MSK
+            price_volume = PRICE_VOLUME_MSK
+            
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
         weight_price = data['weight'] * price_weight
         max_price = round(max(volume_price,weight_price),1)
@@ -523,7 +558,7 @@ async def set_market(callback:CallbackQuery,state:FSMContext):
 async def reset_city(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     if data.get('is_admin') == True:
-        await callback.message.answer(text = '👤怡宝YBS-{}\n☎️ 15147091118\n{}: \n广东省广州市白云区江高镇南岗三元南路62号安托仓储1119怡宝YBS库房-{} ({})\nПочтовый индекс: 510440')
+        await callback.message.answer(text = '阿辉M115-{}\n18727306620\n{}: \n浙江省金华市义乌市北苑街道凌云八区59栋3单元-M115-{}({})\nПочтовый индекс: 3220000')
         await state.update_data(data = {'data':callback.data[11:]})
         await state.set_state(Admin.set_price)
     else:
@@ -592,12 +627,22 @@ async def set_price_v2(message:Message,state:FSMContext):
         global PRICE_WEIGHT_BISH
         global PRICE_VOLUME_OSH
         global PRICE_WEIGHT_OSH
-        global PRICE_VOLUME_TOKMOK
-        global PRICE_WEIGHT_TOKMOK
-        global PRICE_VOLUME_SOKULUK
-        global PRICE_WEIGHT_SOKULUK
-        global PRICE_VOLUME_GULCHO
-        global PRICE_WEIGHT_GULCHO
+        global PRICE_VOLUME_TALAS
+        global PRICE_WEIGHT_TALAS
+        global PRICE_VOLUME_BATKEN
+        global PRICE_WEIGHT_BATKEN
+        global PRICE_VOLUME_TASH
+        global PRICE_WEIGHT_TASH
+        global PRICE_VOLUME_UZ
+        global PRICE_WEIGHT_UZ
+        global PRICE_VOLUME_JL
+        global PRICE_WEIGHT_JL
+        global PRICE_VOLUME_NOOKAT
+        global PRICE_WEIGHT_NOOKAT
+        global PRICE_VOLUME_EKA
+        global PRICE_WEIGHT_EKA
+        global PRICE_VOLUME_MSK
+        global PRICE_WEIGHT_MSK
         global TAOBAO
         global ONE_AND_SIX
         global PINDUODUO
@@ -606,9 +651,14 @@ async def set_price_v2(message:Message,state:FSMContext):
         global ADMIN_PASSWORD
         global ADRESS_BISH
         global ADRESS_OSH
-        global ADRESS_GULCHO
-        global ADRESS_TOKMOK
-        global ADRESS_SOKULUK
+        global ADRESS_TASH
+        global ADRESS_TALAS
+        global ADRESS_UZ
+        global ADRESS_JL
+        global ADRESS_BATKEN
+        global ADRESS_NOOKAT
+        global ADRESS_EKA
+        global ADRESS_MSK
         if '_' in data['data']:
             if data['data'] == 'volume_bish':
                 PRICE_VOLUME_BISH = float(new_value)
@@ -618,18 +668,38 @@ async def set_price_v2(message:Message,state:FSMContext):
                 PRICE_VOLUME_OSH = float(new_value)
             elif data['data'] == 'weight_osh':
                 PRICE_WEIGHT_OSH = float(new_value)
-            if data['data'] == 'volume_sokuluk':
-                PRICE_VOLUME_SOKULUK = float(new_value)
-            elif data['data'] == 'weight_sokuluk':
-                PRICE_WEIGHT_SOKULUK = float(new_value)
-            if data['data'] == 'volume_tokmok':
-                PRICE_VOLUME_TOKMOK = float(new_value)
-            elif data['data'] == 'weight_tokmok':
-                PRICE_WEIGHT_TOKMOK = float(new_value)
-            if data['data'] == 'volume_gulcho':
-                PRICE_VOLUME_GULCHO = float(new_value)
-            elif data['data'] == 'weight_gulcho':
-                PRICE_WEIGHT_GULCHO = float(new_value)
+            if data['data'] == 'volume_tash':
+                PRICE_VOLUME_TASH = float(new_value)
+            elif data['data'] == 'weight_tash':
+                PRICE_WEIGHT_TASH = float(new_value)
+            if data['data'] == 'volume_uz':
+                PRICE_VOLUME_UZ = float(new_value)
+            elif data['data'] == 'weight_uz':
+                PRICE_WEIGHT_UZ = float(new_value)
+            if data['data'] == 'volume_jl':
+                PRICE_VOLUME_JL = float(new_value)
+            elif data['data'] == 'weight_jl':
+                PRICE_WEIGHT_JL = float(new_value)
+            if data['data'] == 'volume_nookat':
+                PRICE_VOLUME_NOOKAT = float(new_value)
+            elif data['data'] == 'weight_nookat':
+                PRICE_WEIGHT_NOOKAT = float(new_value)
+            if data['data'] == 'volume_batken':
+                PRICE_VOLUME_BATKEN = float(new_value)
+            elif data['data'] == 'weight_batken':
+                PRICE_WEIGHT_BATKEN = float(new_value)
+            if data['data'] == 'volume_talas':
+                PRICE_VOLUME_TALAS = float(new_value)
+            elif data['data'] == 'weight_talas':
+                PRICE_WEIGHT_TALAS = float(new_value)
+            if data['data'] == 'volume_msk':
+                PRICE_VOLUME_MSK = float(new_value)
+            elif data['data'] == 'weight_msk':
+                PRICE_WEIGHT_MSK = float(new_value)
+            if data['data'] == 'volume_eka':
+                PRICE_VOLUME_EKA = float(new_value)
+            elif data['data'] == 'weight_eka':
+                PRICE_WEIGHT_EKA = float(new_value)
             await message.answer(text = 'Вы успешно сменили цену')
         elif data['data'] == 'whatsapp':
             LINK_WHATSAPP = new_value
@@ -643,15 +713,30 @@ async def set_price_v2(message:Message,state:FSMContext):
         elif data['data'] == 'osh':
             ADRESS_OSH = str(new_value)
             await message.answer(text = 'Вы сменили адрес Оша')
-        elif data['data'] == 'sokuluk':
-            ADRESS_SOKULUK = str(new_value)
-            await message.answer(text = 'Вы сменили адрес Сокулук')
-        elif data['data'] == 'tokmok':
-            ADRESS_TOKMOK = str(new_value)
-            await message.answer(text = 'Вы сменили адрес Токмок')
-        elif data['data'] == 'gulcho':
-            ADRESS_GULCHO = str(new_value)
-            await message.answer(text = 'Вы сменили адрес Гулчо')
+        elif data['data'] == 'talas':
+            ADRESS_TALAS = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Таласа')
+        elif data['data'] == 'nookat':
+            ADRESS_NOOKAT = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Ноокат')
+        elif data['data'] == 'jl':
+            ADRESS_JL = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Жалал-Абад')
+        elif data['data'] == 'tash':
+            ADRESS_TASH = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Таш-Комур')
+        elif data['data'] == 'batken':
+            ADRESS_BATKEN = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Баткен')
+        elif data['data'] == 'uz':
+            ADRESS_UZ = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Узгена')
+        elif data['data'] == 'msk':
+            ADRESS_MSK = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Москвы')
+        elif data['data'] == 'eka':
+            ADRESS_EKA = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Екатеринбурга')
         else:
             if data['data'] == 'taobao':
                 TAOBAO = new_value
@@ -681,10 +766,15 @@ async def handle_admin_documents(message: types.Message, state: FSMContext):
             file = await bot.download_file(file_path)
             df = pd.read_excel(file,header = None)
             track_codes = df.iloc[:,0].to_list()
-            data = df.iloc[:, :2]
+            if len(df.columns) == 3:
+                w = True
+                data = df.iloc[:, :3]
+            else:
+                w = False
+                data = df.iloc[:, :2]
             new_status = message.caption
             if new_status == 'В Китае':
-                append_products(data)
+                append_products(data,w)
                 await message.answer('Все готово,проверьте')
             else:
                 update_google_sheet(set(track_codes),new_status)
