@@ -452,7 +452,12 @@ async def set_width(message:Message,state:FSMContext):
             await message.answer(text = f'Сиздин бааңыз: {max_price} $',reply_markup=default_kb)
         await state.set_state()
     elif message.text == 'Отмена':
+        default_kb = default_kb_ru
         await message.answer(text = 'Вы отменили последнее действие',reply_markup=default_kb)
+        await state.set_state()
+    elif message.text == 'Артка':
+        default_kb = default_kb_kg
+        await message.answer(text = 'Акыркы аракетиңизди артка кайтардыңыз',reply_markup=default_kb)
         await state.set_state()
     else:
         await message.answer('❗️ Неверный формат ввода ❗️\nПопробуйте снова')
