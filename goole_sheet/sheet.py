@@ -15,7 +15,7 @@ def append_products(df,w):
     tz = timezone(timedelta(hours=6))
     date = datetime.now(tz)
     current_date = date.strftime("%m-%d")
-    sheet = client.open(title = 'Products').sheet1
+    sheet = client.open(title = 'Alpha Products').sheet1
     values = df.values.tolist()
     if not w:
         for row in values:
@@ -39,7 +39,7 @@ def append_products(df,w):
     return True
 
 def update_google_sheet(track_codes, new_status):
-    sheet = client.open(title = 'Products').sheet1 
+    sheet = client.open(title = 'Alpha Products').sheet1 
     data = sheet.get_all_records()
     tz = timezone(timedelta(hours=6))
     date = datetime.now(tz)
@@ -63,7 +63,7 @@ def update_google_sheet(track_codes, new_status):
 
 
 def find_order_by_id(item_id,lang):
-    spreadsheet = client.open(title='Products')
+    spreadsheet = client.open(title='Alpha Products')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_values()
@@ -74,7 +74,7 @@ def find_order_by_id(item_id,lang):
     extra = ''
     for index, row in items.iterrows():
         if row['Вес']:
-            extra = f", Вес: {row['Вес']}"
+            extra = f", Вес: {row['Вес']} кг"
         if row['Статус'] == 'В Пути':
             status = '🚛 В Пути'
         if row['Статус'] == 'В Китае':
@@ -91,7 +91,7 @@ def find_order_by_id(item_id,lang):
 
 def find_order_by_track_code(track_code,lang):
     track_code = str(track_code)  
-    spreadsheet = client.open(title='Products')
+    spreadsheet = client.open(title='Alpha Products')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_values()
@@ -103,7 +103,7 @@ def find_order_by_track_code(track_code,lang):
         time = item.iloc[0]['Дата']
         weight = item.iloc[0]['Вес']
         if weight:
-            extra = f', Вес: {weight}'
+            extra = f', Вес: {weight} кг'
         if status == 'В Пути':
             status = '🚛 В Пути'
         if status == 'В Китае':
@@ -119,11 +119,11 @@ def find_order_by_track_code(track_code,lang):
 
 def register_client(data):
     if data.get('ref'):
-        spreadsheet = client.open(title='Clients2')
+        spreadsheet = client.open(title='Alpha Clients 2')
         sheets = spreadsheet.worksheets()
         sheet = sheets[0]
         sheet.append_row([data['city'],data['full_name'] + ' ' + data['name'],data['phone_number'],data['id']])
-    spreadsheet = client.open(title='Clients')
+    spreadsheet = client.open(title='Alpha Clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     sheet.append_row([data['city'],data['full_name'] + ' ' + data['name'],data['phone_number'],data['id']])
@@ -131,7 +131,7 @@ def register_client(data):
 
 def update_client_by_id(client_id, new_data,ref):
     if ref:
-        spreadsheet = client.open('Clients2')
+        spreadsheet = client.open('Alpha Clients 2')
         sheets = spreadsheet.worksheets()
         sheet = sheets[0]
         data = sheet.get_all_records()
@@ -139,7 +139,7 @@ def update_client_by_id(client_id, new_data,ref):
             if row['id'] == client_id:
                 for key, value in new_data.items():
                     sheet.update_cell(i, sheet.find(key).col, value)
-    spreadsheet = client.open('Clients')
+    spreadsheet = client.open('Alpha Clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_records()
@@ -151,7 +151,7 @@ def update_client_by_id(client_id, new_data,ref):
     return False
 
 def find_user_by_data(phone_number,client_id,lang):
-    spreadsheet = client.open('Clients')
+    spreadsheet = client.open('Alpha Clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     if client_id.isdigit() == False:

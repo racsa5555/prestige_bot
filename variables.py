@@ -21,7 +21,7 @@ PRICE_VOLUME_MSK = 370 # для цены по обьему в СОКУЛУК
 
 ADMIN_PASSWORD = '1'
 
-LINK_WHATSAPP = 'https://wa.me/+996708999963'
+LINK_WHATSAPP = ''
 
 
 ADRESS_OSH = '阿辉M115-{}\n18727306620\n{}: \n浙江省金华市义乌市北苑街道凌云八区59栋3单元-M115-{}({})\nПочтовый индекс: 3220000'
@@ -40,7 +40,7 @@ TAOBAO = 'link2'
 ONE_AND_SIX = 'link3' #1688
 POIZON = 'link4'
 
-def send_adress(id,phone_number,lang,city,ADRESS_BISH,ADRESS_OSH,ADRESS_TALAS,ADRESS_UZ,ADRESS_JL,ADRESS_MSK,ADRESS_EKA,ADRESS_BATKEN,ADRESS_NOOKAT,ADRESS_TASH):
+def send_adress(id,phone_number,lang,city,ADRESS_BISH,ADRESS_OSH,ADRESS_TALAS,ADRESS_NOOKAT,ADRESS_BATKEN,ADRESS_UZ,ADRESS_JL,ADRESS_MSK,ADRESS_EKA,ADRESS_TASH):
     if lang == 'RU':
         if city == 'BISH':
             return ADRESS_BISH.format(id,'Полный адрес',id,phone_number)
@@ -48,17 +48,17 @@ def send_adress(id,phone_number,lang,city,ADRESS_BISH,ADRESS_OSH,ADRESS_TALAS,AD
             return ADRESS_UZ.format(id,'Полный адрес',id,phone_number)
         elif city == 'OSH':
             return ADRESS_OSH.format(id,'Полный адрес',id,phone_number)
-        elif city == 'TALAS':
+        elif city == 'TA':
             return ADRESS_TALAS.format(id,'Полный адрес',id,phone_number)
         elif city == 'JL':
             return ADRESS_JL.format(id,'Полный адрес',id,phone_number)
-        elif city == 'MSK':
+        elif city == 'MOS':
             return ADRESS_MSK.format(id,'Полный адрес',id,phone_number)
         elif city == 'EKA':
             return ADRESS_EKA.format(id,'Полный адрес',id,phone_number)
-        elif city == 'BATKEN':
+        elif city == 'BAT':
             return ADRESS_BATKEN.format(id,'Полный адрес',id,phone_number)
-        elif city == 'NOOKAT':
+        elif city == 'N':
             return ADRESS_NOOKAT.format(id,'Полный адрес',id,phone_number)
         elif city == 'TASH':
             return ADRESS_TASH.format(id,'Полный адрес',id,phone_number)
@@ -69,17 +69,17 @@ def send_adress(id,phone_number,lang,city,ADRESS_BISH,ADRESS_OSH,ADRESS_TALAS,AD
             return ADRESS_UZ.format(id,'Толук адрес',id,phone_number)
         elif city == 'OSH':
             return ADRESS_OSH.format(id,'Толук адрес',id,phone_number)
-        elif city == 'TALAS':
+        elif city == 'TA':
             return ADRESS_TALAS.format(id,'Толук адрес',id,phone_number)
         elif city == 'JL':
             return ADRESS_JL.format(id,'Толук адрес',id,phone_number)
-        elif city == 'MSK':
+        elif city == 'MOS':
             return ADRESS_MSK.format(id,'Толук адрес',id,phone_number)
         elif city == 'EKA':
             return ADRESS_EKA.format(id,'Толук адрес',id,phone_number)
-        elif city == 'BATKEN':
+        elif city == 'BAT':
             return ADRESS_BATKEN.format(id,'Толук адрес',id,phone_number)
-        elif city == 'NOOKAT':
+        elif city == 'N':
             return ADRESS_NOOKAT.format(id,'Толук адрес',id,phone_number)
         elif city == 'TASH':
             return ADRESS_TASH.format(id,'Толук адрес',id,phone_number)

@@ -37,8 +37,8 @@ async def start(message: types.Message,state:FSMContext):
     ])
     ref = message.text.split()
     if len(ref) == 2:
-        if ref == 'wsayMHwjKHdY':
-            await state.update_data(ref = ref)
+        if ref[1] == 'wsayMHwjKHdY':
+            await state.update_data(ref = ref[1])
     await message.answer("Выберите язык / Тилди тандаңыз:", reply_markup=language_kb.as_markup())
 
 
@@ -270,12 +270,17 @@ async def get_profile(message:Message,state:FSMContext):
 async def get_address(message:Message,state:FSMContext):
     global ADRESS_BISH
     global ADRESS_OSH
-    global ADRESS_SOKULUK
-    global ADRESS_TOKMOK
-    global ADRESS_GULCHO
+    global ADRESS_TALAS
+    global ADRESS_NOOKAT
+    global ADRESS_BATKEN
+    global ADRESS_UZ
+    global ADRESS_JL
+    global ADRESS_MSK
+    global ADRESS_EKA
+    global ADRESS_TASH
     data = await state.get_data()
     lang = data.get('language')
-    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_BISH,ADRESS_OSH,ADRESS_TOKMOK,ADRESS_SOKULUK,ADRESS_GULCHO))
+    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_BISH,ADRESS_OSH,ADRESS_TALAS,ADRESS_NOOKAT,ADRESS_BATKEN,ADRESS_UZ,ADRESS_JL,ADRESS_MSK,ADRESS_EKA,ADRESS_TASH))
     await message.answer(text = res)
 
 
@@ -455,7 +460,7 @@ async def set_width(message:Message,state:FSMContext):
         default_kb = default_kb_ru
         await message.answer(text = 'Вы отменили последнее действие',reply_markup=default_kb)
         await state.set_state()
-    elif message.text == 'Артка':
+    elif message.text == 'Артка': 
         default_kb = default_kb_kg
         await message.answer(text = 'Акыркы аракетиңизди артка кайтардыңыз',reply_markup=default_kb)
         await state.set_state()
@@ -664,6 +669,7 @@ async def set_price_v2(message:Message,state:FSMContext):
         global ADRESS_NOOKAT
         global ADRESS_EKA
         global ADRESS_MSK
+        await message.answer(text = str(data))
         if '_' in data['data']:
             if data['data'] == 'volume_bish':
                 PRICE_VOLUME_BISH = float(new_value)
