@@ -669,7 +669,6 @@ async def set_price_v2(message:Message,state:FSMContext):
         global ADRESS_NOOKAT
         global ADRESS_EKA
         global ADRESS_MSK
-        await message.answer(text = str(data))
         if '_' in data['data']:
             if data['data'] == 'volume_bish':
                 PRICE_VOLUME_BISH = float(new_value)
@@ -777,15 +776,11 @@ async def handle_admin_documents(message: types.Message, state: FSMContext):
             file = await bot.download_file(file_path)
             df = pd.read_excel(file,header = None)
             track_codes = df.iloc[:,0].to_list()
-            if len(df.columns) == 3:
-                w = True
-                data = df.iloc[:, :3]
-            else:
-                w = False
-                data = df.iloc[:, :2]
+            data = df.iloc[:,:]
             new_status = message.caption
+            
             if new_status == 'В Китае':
-                append_products(data,w)
+                append_products(data)
                 await message.answer('Все готово,проверьте')
             else:
                 update_google_sheet(set(track_codes),new_status)

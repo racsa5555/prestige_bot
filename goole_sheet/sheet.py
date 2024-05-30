@@ -11,32 +11,45 @@ scopes = [
 credentials = Credentials.from_service_account_file('./credentials.json', scopes=scopes)
 client = gspread.authorize(credentials)
 
-def append_products(df,w):
+def append_products(df):
     tz = timezone(timedelta(hours=6))
     date = datetime.now(tz)
     current_date = date.strftime("%m-%d")
     sheet = client.open(title = 'Alpha Products').sheet1
     values = df.values.tolist()
-    if not w:
-        for row in values:
-            row.append('В Китае')
-            row.append(current_date)
-            row = [str(value) for value in row]
-        sheet.append_rows(values)
-        return True
-    
-    length = len(df)
-    new_statuses = ['В Китае' for x in range(length)]
-    new_dates = [str(current_date) for x in range(length)]
-    column_weights = []
-    for l in values:
-        column_weights.append(l.pop())
-        l = [str(value) for value in l]
-    sheet.append_rows(values)
-    result = [new_statuses,new_dates,column_weights]
-    transposed_result = list(map(list, zip(*result)))
-    sheet.update('C2', transposed_result)
+    data = []
+    for index, row in df.iterrows():
+        track_code = row[0]
+        client_id = row[1]
+        status = 'В Китае'
+        date = current_date
+        if len(row) == 3:
+            weight = str(row[2]) if not pd.isnull(row.iloc[2]) else ""
+        else:
+            weight = ''
+        data.append([track_code, client_id, status, date, weight])
+        # for row in values:
+        #     row.append('В Китае')
+        #     row.append(current_date)
+        #     row = [str(value) for value in row]
+        # sheet.append_rows(values)
+        # return True
+    sheet.append_rows(data)
+    # length = len(df)
+    # new_statuses = ['В Китае' for x in range(length)]
+    # new_dates = [str(current_date) for x in range(length)]
+    # column_weights = []
+    # for l in values:
+    #     column_weights.append(l.pop())
+    #     l = [str(value) for value in l]
+    # sheet.append_rows(values)
+    # result = [new_statuses,new_dates,column_weights]
+    # transposed_result = list(map(list, zip(*result)))
+    # sheet.update('C2', transposed_result)
     return True
+
+
+
 
 def update_google_sheet(track_codes, new_status):
     sheet = client.open(title = 'Alpha Products').sheet1 
@@ -73,6 +86,7 @@ def find_order_by_id(item_id,lang):
     k = 0
     extra = ''
     for index, row in items.iterrows():
+        extra = ''
         if row['Вес']:
             extra = f", Вес: {row['Вес']} кг"
         if row['Статус'] == 'В Пути':
