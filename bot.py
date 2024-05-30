@@ -444,6 +444,11 @@ async def set_width(message:Message,state:FSMContext):
             global PRICE_WEIGHT_MSK
             price_weight = PRICE_WEIGHT_MSK
             price_volume = PRICE_VOLUME_MSK
+        elif data.get('city') == 'N':
+            global PRICE_VOLUME_NOOKAT
+            global PRICE_WEIGHT_NOOKAT
+            price_weight = PRICE_WEIGHT_NOOKAT
+            price_volume = PRICE_VOLUME_NOOKAT
             
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
         weight_price = data['weight'] * price_weight
