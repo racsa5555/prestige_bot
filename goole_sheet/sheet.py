@@ -71,7 +71,11 @@ def update_google_sheet(track_codes, new_status):
     if add_track_codes:
         diapazon = f'A{current_row}:A{last_row}'
         sheet.format(diapazon,{"backgroundColor": {"red": 1.0}})
-    sheet.update([list(data[0].keys())] + [list(row.values()) for row in data])
+    formatted_data = [
+        [str(value) if isinstance(value, (int, float)) else value for value in row.values()]
+        for row in data
+    ]
+    sheet.update([list(data[0].keys())] + formatted_data)
     return True
 
 
