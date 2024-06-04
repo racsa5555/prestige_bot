@@ -26,7 +26,7 @@ bot = Bot(TOKEN)
 
 dp = Dispatcher()
 
-id = 2000
+id = 2670
 
 @dp.message(CommandStart())
 async def start(message: types.Message,state:FSMContext):
@@ -179,9 +179,9 @@ async def set_full_name(message:Message,state:FSMContext):
     await state.set_state(UserState.phone_number)
     data = await state.get_data()
     if data['language'] == 'RU':
-        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 0708999963')
+        await message.answer(text = 'Пожалуйста, напишите номер телефона,\nпример: 0505******')
     else:
-        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 0708999963')
+        await message.answer(text = 'Сураныч , телефон номеринизди жазыныз, \n мисалы: 0505******')
 
 
 @dp.message(UserState.phone_number)
@@ -584,6 +584,7 @@ async def set_price_v2(message:Message,state:FSMContext):
             await message.answer(text = 'Вы сменили пароль')
         if data['data'] == 'bish':
             ADRESS_BISH = str(new_value)
+            await message.answer(text = 'Вы сменили адрес Бишкек')
         else:
             if data['data'] == 'taobao':
                 TAOBAO = new_value

@@ -33,9 +33,9 @@ login_or_register_kg = ReplyKeyboardMarkup(
 
 set_city_kb = InlineKeyboardBuilder(
     markup= [
-        [InlineKeyboardButton(text = 'Бишкек',callback_data='city_set_bishkek'),]
+        [InlineKeyboardButton(text = 'Бишкек',callback_data='city_set_bish'),]
     ]   
-)       
+)
 profile_kb_ru = InlineKeyboardBuilder(
     markup=[
         [InlineKeyboardButton(text = 'Изменить профиль',callback_data='update_profile')],
