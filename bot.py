@@ -74,7 +74,7 @@ async def set_bish(callback:CallbackQuery,state:FSMContext):
 @dp.message(UserState.hi)
 async def hi(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
-    if data['language'] == 'RU':
+    if data.get('language') == 'RU':
         data.pop('language')
         if not data or len(data) == 1:
             await message.answer(text = 'Здравствуйте 👋\nПеред использованием бота нужно пройти регистрацию или войти',reply_markup = login_or_register_ru)
@@ -682,8 +682,8 @@ async def logout_profile(callback:CallbackQuery,state:FSMContext):
 
 @dp.message(Command(commands=['clear']))
 async def clear(message:Message,state:FSMContext):
-    await state.clear()
-    await hi(message,state)
+    await state.set_data({})
+    await start(message,state)
 
 async def main():
     await dp.start_polling(bot)
