@@ -680,6 +680,11 @@ async def logout_profile(callback:CallbackQuery,state:FSMContext):
     await hi(callback.message,state)
 
 
+@dp.message(Command(commands=['clear']))
+async def clear(message:Message,state:FSMContext):
+    await state.clear()
+    await hi(message,state)
+
 async def main():
     await dp.start_polling(bot)
 

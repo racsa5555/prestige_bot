@@ -155,15 +155,15 @@ def register_client(data):
     return True
 
 def update_client_by_id(client_id, new_data,ref):
-    if ref:
-        spreadsheet = client.open('SonunExpress-clients')
-        sheets = spreadsheet.worksheets()
-        sheet = sheets[0]
-        data = sheet.get_all_records()
-        for i, row in enumerate(data, start=2):
-            if row['id'] == client_id:
-                for key, value in new_data.items():
-                    sheet.update_cell(i, sheet.find(key).col, value)
+    # if ref:
+    #     spreadsheet = client.open('SonunExpress-clients')
+    #     sheets = spreadsheet.worksheets()
+    #     sheet = sheets[0]
+    #     data = sheet.get_all_records()
+    #     for i, row in enumerate(data, start=2):
+    #         if row['id'] == client_id:
+    #             for key, value in new_data.items():
+    #                 sheet.update_cell(i, sheet.find(key).col, value)
     spreadsheet = client.open('SonunExpress-clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
