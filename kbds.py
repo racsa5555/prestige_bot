@@ -137,7 +137,7 @@ set_variables_kbds = InlineKeyboardBuilder(
         [InlineKeyboardButton(text = 'Поменять маркетплейсы',callback_data='set_marketplace')],
         [InlineKeyboardButton(text = 'Рассылка новостей',callback_data = 'send_broadcast')],
         [InlineKeyboardButton(text = 'Сменить пароль админа',callback_data = 'reset_password')],
-        [InlineKeyboardButton(text = 'Сменить адрес Бишкек',callback_data = 'reset_city_kk')],
+        [InlineKeyboardButton(text = 'Сменить адрес Каракуль',callback_data = 'reset_city_kk')],
         [InlineKeyboardButton(text = 'Выйти',callback_data='logout_admin')]
     ]
 )

@@ -584,7 +584,7 @@ async def set_price_v2(message:Message,state:FSMContext):
             await message.answer(text = 'Вы сменили пароль')
         if data['data'] == 'kk':
             ADRESS_KK = str(new_value)
-            await message.answer(text = 'Вы сменили адрес Бишкек')
+            await message.answer(text = 'Вы сменили адрес Каракуль')
         else:
             if data['data'] == 'taobao':
                 TAOBAO = new_value
