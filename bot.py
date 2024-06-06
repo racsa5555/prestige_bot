@@ -26,7 +26,7 @@ bot = Bot(TOKEN)
 
 dp = Dispatcher()
 
-id = 2670
+id = 70
 
 @dp.message(CommandStart())
 async def start(message: types.Message,state:FSMContext):
@@ -145,8 +145,8 @@ async def set_id(message:Message,state:FSMContext):
 
 @dp.callback_query(lambda query: query.data.startswith('city_set'))
 async def set_bish(callback:CallbackQuery,state:FSMContext):
-    if callback.data == 'city_set_bish':
-        await state.update_data(city = 'BISH')
+    if callback.data == 'city_set_kk':
+        await state.update_data(city = 'KK')
     data = await state.get_data()
     if data['language'] == 'RU':
         await callback.message.answer(text = 'Как Вас зовут?')
@@ -248,10 +248,10 @@ async def get_profile(message:Message,state:FSMContext):
 
 @dp.message(F.text[1:].in_({'Адреса','Дарек'}))
 async def get_address(message:Message,state:FSMContext):
-    global ADRESS_BISH
+    global ADRESS_KK
     data = await state.get_data()
     lang = data.get('language')
-    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_BISH))
+    res = str(send_adress(data.get('id'),data.get('phone_number'),lang,data.get('city'),ADRESS_KK))
     await message.answer(text = res)
 
 
@@ -370,11 +370,11 @@ async def set_width(message:Message,state:FSMContext):
     if message.text.isdigit():
         await state.update_data(weight = int(message.text))
         data = await state.get_data()
-        if data.get('city') == 'BISH':
-            global PRICE_VOLUME_BISH
-            global PRICE_WEIGHT_BISH
-            price_weight = PRICE_WEIGHT_BISH
-            price_volume = PRICE_VOLUME_BISH
+        if data.get('city') == 'KK':
+            global PRICE_VOLUME_KK
+            global PRICE_WEIGHT_KK
+            price_weight = PRICE_WEIGHT_KK
+            price_volume = PRICE_VOLUME_KK
         volume_price = (data['width'] * data['height'] * data ['length'])/1000000 * price_volume
         weight_price = data['weight'] * price_weight
         max_price = round(max(volume_price,weight_price),1)
@@ -563,18 +563,18 @@ async def set_price_v2(message:Message,state:FSMContext):
     data = await state.get_data()
     if data.get('is_admin') == True:
         new_value = message.text    
-        global PRICE_VOLUME_BISH
-        global PRICE_WEIGHT_BISH
+        global PRICE_VOLUME_KK
+        global PRICE_WEIGHT_KK
         global TAOBAO
         global ONE_AND_SIX
         global PINDUODUO
         global POIZON
         global LINK_WHATSAPP
         global ADMIN_PASSWORD
-        global ADRESS_BISH
+        global ADRESS_KK
         if '_' in data['data']:
-            if data['data'] == 'volume_bish':
-                PRICE_VOLUME_BISH = float(new_value)
+            if data['data'] == 'volume_kk':
+                PRICE_VOLUME_KK = float(new_value)
             await message.answer(text = 'Вы успешно сменили цену')
         elif data['data'] == 'whatsapp':
             LINK_WHATSAPP = new_value
@@ -582,8 +582,8 @@ async def set_price_v2(message:Message,state:FSMContext):
         elif data['data'] == 'resetpassword':
             ADMIN_PASSWORD = new_value
             await message.answer(text = 'Вы сменили пароль')
-        if data['data'] == 'bish':
-            ADRESS_BISH = str(new_value)
+        if data['data'] == 'kk':
+            ADRESS_KK = str(new_value)
             await message.answer(text = 'Вы сменили адрес Бишкек')
         else:
             if data['data'] == 'taobao':

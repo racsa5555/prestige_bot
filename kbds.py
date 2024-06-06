@@ -33,7 +33,7 @@ login_or_register_kg = ReplyKeyboardMarkup(
 
 set_city_kb = InlineKeyboardBuilder(
     markup= [
-        [InlineKeyboardButton(text = 'Бишкек',callback_data='city_set_bish'),]
+        [InlineKeyboardButton(text = 'Каракуль',callback_data='city_set_kk'),]
     ]   
 )
 profile_kb_ru = InlineKeyboardBuilder(
@@ -137,7 +137,7 @@ set_variables_kbds = InlineKeyboardBuilder(
         [InlineKeyboardButton(text = 'Поменять маркетплейсы',callback_data='set_marketplace')],
         [InlineKeyboardButton(text = 'Рассылка новостей',callback_data = 'send_broadcast')],
         [InlineKeyboardButton(text = 'Сменить пароль админа',callback_data = 'reset_password')],
-        [InlineKeyboardButton(text = 'Сменить адрес Бишкек',callback_data = 'reset_city_bish')],
+        [InlineKeyboardButton(text = 'Сменить адрес Бишкек',callback_data = 'reset_city_kk')],
         [InlineKeyboardButton(text = 'Выйти',callback_data='logout_admin')]
     ]
 )
@@ -153,8 +153,8 @@ set_marketplace = InlineKeyboardBuilder(
 
 set_price = InlineKeyboardBuilder(
     markup=[
-        [InlineKeyboardButton(text = 'Цена по весу в Бишкеке',callback_data = 'p_price_weight_bish')],
-        [InlineKeyboardButton(text = 'Цена по обьему в Бишкеке',callback_data = 'p_price_volume_bish')],
+        [InlineKeyboardButton(text = 'Цена по весу в Каракуль',callback_data = 'p_price_weight_kk')],
+        [InlineKeyboardButton(text = 'Цена по обьему в Каракуль',callback_data = 'p_price_volume_kk')],
     ]
 )
         

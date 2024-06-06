@@ -15,7 +15,7 @@ def append_products(df):
     tz = timezone(timedelta(hours=6))
     date = datetime.now(tz)
     current_date = date.strftime("%m-%d")
-    sheet = client.open(title = 'SonunExpress-products').sheet1
+    sheet = client.open(title = 'Prestige-products').sheet1
     values = df.values.tolist()
     data = []
     for index, row in df.iterrows():
@@ -52,7 +52,7 @@ def append_products(df):
 
 
 def update_google_sheet(track_codes, new_status):
-    sheet = client.open(title = 'SonunExpress-products').sheet1 
+    sheet = client.open(title = 'Prestige-products').sheet1 
     data = sheet.get_all_records()
     tz = timezone(timedelta(hours=6))
     date = datetime.now(tz)
@@ -80,7 +80,7 @@ def update_google_sheet(track_codes, new_status):
 
 
 def find_order_by_id(item_id,lang):
-    spreadsheet = client.open(title='SonunExpress-products')
+    spreadsheet = client.open(title='Prestige-products')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_values()
@@ -113,7 +113,7 @@ def find_order_by_id(item_id,lang):
 
 def find_order_by_track_code(track_code,lang):
     track_code = str(track_code)  
-    spreadsheet = client.open(title='SonunExpress-products')
+    spreadsheet = client.open(title='Prestige-products')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_values()
@@ -144,11 +144,11 @@ def find_order_by_track_code(track_code,lang):
 
 def register_client(data):
     if data.get('ref'):
-        spreadsheet = client.open(title='SonunExpress-clients')
+        spreadsheet = client.open(title='Prestige-clients')
         sheets = spreadsheet.worksheets()
         sheet = sheets[0]
         sheet.append_row([data['city'],data['full_name'] + ' ' + data['name'],data['phone_number'],data['id']])
-    spreadsheet = client.open(title='SonunExpress-clients')
+    spreadsheet = client.open(title='Prestige-clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     sheet.append_row([data['city'],data['full_name'] + ' ' + data['name'],data['phone_number'],data['id']])
@@ -156,7 +156,7 @@ def register_client(data):
 
 def update_client_by_id(client_id, new_data,ref):
     # if ref:
-    #     spreadsheet = client.open('SonunExpress-clients')
+    #     spreadsheet = client.open('Prestige-clients')
     #     sheets = spreadsheet.worksheets()
     #     sheet = sheets[0]
     #     data = sheet.get_all_records()
@@ -164,7 +164,7 @@ def update_client_by_id(client_id, new_data,ref):
     #         if row['id'] == client_id:
     #             for key, value in new_data.items():
     #                 sheet.update_cell(i, sheet.find(key).col, value)
-    spreadsheet = client.open('SonunExpress-clients')
+    spreadsheet = client.open('Prestige-clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     data = sheet.get_all_records()
@@ -176,7 +176,7 @@ def update_client_by_id(client_id, new_data,ref):
     return False
 
 def find_user_by_data(phone_number,client_id,lang):
-    spreadsheet = client.open('SonunExpress-clients')
+    spreadsheet = client.open('Prestige-clients')
     sheets = spreadsheet.worksheets()
     sheet = sheets[0]
     if client_id.isdigit() == False:
