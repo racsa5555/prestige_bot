@@ -6,7 +6,7 @@ ADMIN_PASSWORD = '1'
 LINK_WHATSAPP = ''
 
 
-ADRESS_KK = '刚子(6556)G-{}\n13089886002\n{}: \n广东省佛山市南海区里水镇海南洲工业区53号进门左手边第一家（6556) G-{} ({})'
+ADRESS_KK = '刚子(6556)G-{}\n13089886002\n{}: \n广东省佛山市南海区里水镇海南洲工业区53号进门左手边第一家(6556) G-{} ({})'
 PINDUODUO = 'link1'
 TAOBAO = 'link2'
 ONE_AND_SIX = 'link3' #1688

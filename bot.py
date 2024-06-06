@@ -498,7 +498,7 @@ async def set_market(callback:CallbackQuery,state:FSMContext):
 async def reset_city(callback:CallbackQuery,state:FSMContext):
     data = await state.get_data()
     if data.get('is_admin') == True:
-        await callback.message.answer(text = '👤 蓝天LT01-{}\n📞  15547009391\n{}: \n广东省广州市白云区江高镇南岗三元南路广新元素54号云创港1119-蓝天LT01库房-{} ({})')
+        await callback.message.answer(text = '刚子(6556)G-{}\n13089886002\n{}: \n广东省佛山市南海区里水镇海南洲工业区53号进门左手边第一家(6556) G-{} ({})')
         await state.update_data(data = {'data':callback.data[11:]})
         await state.set_state(Admin.set_price)
     else:
